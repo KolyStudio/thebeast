@@ -1263,12 +1263,12 @@ pseudo3"
 
 			<!-- Section de confirmation -->
 			{#if showConfirmation}
-				<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+				<div class="bg-info/5 rounded-lg p-4">
 					<div class="flex items-center gap-2 mb-3">
-						<Info class="h-5 w-5 text-blue-500" />
-						<span class="font-medium text-blue-800">Résumé des modifications</span>
+						<Info class="h-5 w-5 text-info" />
+						<span class="font-medium text-info">Résumé des modifications</span>
 					</div>
-					<div class="space-y-2 text-sm text-blue-700">
+					<div class="space-y-2 text-sm text-info">
 						<p><strong>Comptes concernés:</strong> {selectedAccounts.length}</p>
 						<p><strong>Modifications à appliquer:</strong></p>
 						<ul class="list-disc list-inside ml-4 space-y-1">

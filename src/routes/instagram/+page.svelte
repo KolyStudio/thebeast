@@ -7,7 +7,9 @@
 	import TableAccounts from '$lib/components/instagram/tableAccounts.svelte';
 
 	import DeleteConfirmationDialog from '$lib/components/ui/delete-confirmation-dialog.svelte';
-	import { Shield } from '@lucide/svelte';
+	import BulkStatusChangeDialog from '$lib/components/ui/bulk-status-change-dialog.svelte';
+	import BulkOrderDialog from '$lib/components/ui/bulk-order-dialog.svelte';
+	import { Shield, ShoppingCart } from '@lucide/svelte';
 	import { instagramAccountsStore, type InstagramAccount } from '$lib/api/instagramAccounts.svelte';
 
 	import { onMount } from 'svelte';
@@ -27,7 +29,9 @@
 
 	// État pour le changement de statut en masse
 	let bulkStatusChangeOpen = $state(false);
-	let selectedBulkStatus = $state('');
+
+	// État pour les commandes en masse
+	let bulkOrderOpen = $state(false);
 
 	// État pour le terminal et les opérations
 	let bulkEditComponent: BulkEditAccounts;
@@ -228,22 +232,16 @@
 	 */
 	function closeBulkStatusChange() {
 		bulkStatusChangeOpen = false;
-		selectedBulkStatus = '';
 	}
 
 	/**
 	 * Fonction pour confirmer le changement de statut en masse
 	 */
-	async function confirmBulkStatusChange() {
-		if (!selectedBulkStatus) {
-			alert('Veuillez sélectionner un statut.');
-			return;
-		}
-
+	async function confirmBulkStatusChange(newStatus: string) {
 		try {
 			// Changer le statut de tous les comptes sélectionnés
 			const promises = Array.from(selectedAccountIds).map((accountId) =>
-				instagramAccountsStore.updateAccount(accountId, { statut: selectedBulkStatus })
+				instagramAccountsStore.updateAccount(accountId, { statut: newStatus })
 			);
 
 			await Promise.all(promises);
@@ -253,7 +251,65 @@
 			closeBulkStatusChange();
 		} catch (error) {
 			console.error('Erreur lors du changement de statut en masse:', error);
-			alert('Erreur lors du changement de statut en masse.');
+			// TODO: Afficher l'erreur dans le dialog plutôt qu'avec alert
+		}
+	}
+
+	/**
+	 * Fonction pour ouvrir le dialog de commande en masse
+	 */
+	function openBulkOrder() {
+		if (selectedAccountIds.size === 0) {
+			alert('Veuillez sélectionner au moins un compte pour acheter des followers.');
+			return;
+		}
+		bulkOrderOpen = true;
+	}
+
+	/**
+	 * Fonction pour fermer le dialog de commande en masse
+	 */
+	function closeBulkOrder() {
+		bulkOrderOpen = false;
+	}
+
+	/**
+	 * Fonction pour confirmer les commandes en masse
+	 */
+	async function confirmBulkOrder(quantityMode: 'random' | 'fixed', fixedQuantity?: number) {
+		try {
+			// Préparer les données des comptes sélectionnés
+			const accountsData = selectedAccountsForBulkEdit().map((account) => ({
+				id: account.id,
+				username: account.username || ''
+			}));
+
+			// Appeler l'API pour créer les commandes
+			const response = await fetch('/api/orders', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					accounts: accountsData,
+					quantityMode,
+					fixedQuantity
+				})
+			});
+
+			const result = await response.json();
+
+			// Le résultat sera affiché dans le dialog
+			// Réinitialiser la sélection si succès
+			if (result.success) {
+				selectedAccountIds = new Set();
+			}
+
+			// Retourner le résultat pour que le dialog puisse l'afficher
+			return result;
+		} catch (error) {
+			console.error('Erreur lors de la création des commandes:', error);
+			throw error;
 		}
 	}
 </script>
@@ -346,9 +402,9 @@
 			<!-- Bouton Changement de statut en masse -->
 			<button
 				onclick={openBulkStatusChange}
-				class="rounded-lg transition-colors {selectedAccountIds.size === 0
-					? 'bg-base-300 cursor-not-allowed opacity-50'
-					: 'bg-blue-500 hover:bg-blue-600 cursor-pointer'}"
+				class="rounded-lg {selectedAccountIds.size === 0
+					? 'bg-base-200 cursor-not-allowed opacity-50'
+					: 'bg-base-200  cursor-pointer'}"
 				disabled={selectedAccountIds.size === 0}
 				title="Changer le statut en masse ({selectedAccountIds.size} sélectionné(s))"
 				aria-label="Changer le statut en masse"
@@ -366,6 +422,21 @@
 						d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
 					></path>
 				</svg>
+			</button>
+
+			<!-- Bouton Acheter des followers en masse -->
+			<button
+				onclick={openBulkOrder}
+				class="rounded-lg transition-colors {selectedAccountIds.size === 0
+					? 'bg-base-300 cursor-not-allowed opacity-50'
+					: 'bg-base-200  cursor-pointer'}"
+				disabled={selectedAccountIds.size === 0}
+				title="Acheter des followers en masse ({selectedAccountIds.size} sélectionné(s))"
+				aria-label="Acheter des followers en masse"
+			>
+				<ShoppingCart
+					class="w-5 h-5 m-2 {selectedAccountIds.size === 0 ? 'text-gray-500' : 'text-white'}"
+				/>
 			</button>
 
 			<!-- Bouton Terminal -->
@@ -436,44 +507,19 @@
 />
 
 <!-- Dialog de changement de statut en masse -->
-{#if bulkStatusChangeOpen}
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-		<div class="bg-base-100 rounded-lg p-6 w-96 max-w-md mx-4">
-			<h3 class="text-lg font-semibold mb-4">Changer le statut en masse</h3>
-			<p class="text-sm text-base-content/70 mb-4">
-				{selectedAccountIds.size} compte(s) sélectionné(s)
-			</p>
+<BulkStatusChangeDialog
+	bind:open={bulkStatusChangeOpen}
+	selectedCount={selectedAccountIds.size}
+	onConfirm={confirmBulkStatusChange}
+	onCancel={closeBulkStatusChange}
+	isLoading={instagramAccountsStore.isLoading.update}
+/>
 
-			<div class="mb-4">
-				<label for="bulk-status-select" class="block text-sm font-medium mb-2"
-					>Nouveau statut :</label
-				>
-				<select
-					id="bulk-status-select"
-					bind:value={selectedBulkStatus}
-					class="select select-bordered w-full"
-				>
-					<option value="">Sélectionnez un statut</option>
-					<option value="actif">Actif</option>
-					<option value="en cours">En cours</option>
-					<option value="disponible">Disponible</option>
-					<option value="utilisé">Utilisé</option>
-					<option value="nouveau">Nouveau</option>
-					<option value="erreur">Erreur</option>
-					<option value="banni">Banni</option>
-				</select>
-			</div>
-
-			<div class="flex gap-3 justify-end">
-				<button onclick={closeBulkStatusChange} class="btn btn-ghost"> Annuler </button>
-				<button
-					onclick={confirmBulkStatusChange}
-					class="btn btn-primary"
-					disabled={!selectedBulkStatus}
-				>
-					Confirmer
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
+<!-- Dialog de commande de followers en masse -->
+<BulkOrderDialog
+	bind:open={bulkOrderOpen}
+	selectedAccounts={selectedAccountsForBulkEdit()}
+	onConfirm={confirmBulkOrder}
+	onCancel={closeBulkOrder}
+	isLoading={instagramAccountsStore.isLoading.update}
+/>
