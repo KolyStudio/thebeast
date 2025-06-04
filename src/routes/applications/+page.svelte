@@ -16,6 +16,7 @@
 	} from '$lib/components/applications/addAccount.svelte';
 	import * as Select from '$lib/components/ui/select';
 	import * as Popover from '$lib/components/ui/popover';
+	import { Input } from '$lib/components/ui/input';
 	import { supabase } from '$lib/supabaseClient';
 	import { instagramAccountsStore, type InstagramAccount } from '$lib/api/instagramAccounts.svelte';
 	import { onMount } from 'svelte';
@@ -74,6 +75,7 @@
 	// État pour les sélections et filtres
 	let selectedAccountIds = $state(new Set());
 	let currentFilter = $state('bumble');
+	let cityFilter = $state<string>('');
 	let isLoading = $state(false);
 	let isAddingAccount = $state(false);
 	let isEditingAccount = $state(false);
@@ -508,7 +510,13 @@
 			})
 			.filter((item) => {
 				// Filtrer selon la plateforme sélectionnée
-				return !item.compte || item.compte.platform.toLowerCase() === currentFilter;
+				const platformMatch = !item.compte || item.compte.platform.toLowerCase() === currentFilter;
+
+				// Filtrer selon la ville si un filtre de ville est défini
+				const cityMatch =
+					!cityFilter.trim() || item.ville.toLowerCase().includes(cityFilter.toLowerCase());
+
+				return platformMatch && cityMatch;
 			})
 			.sort((a, b) => {
 				// Trier pour mettre les comptes existants en haut
@@ -761,7 +769,17 @@
 				onchange={() => (currentFilter = 'tinder')}
 			/>
 		</div>
-		<div class="gap-2 flex items-center">
+
+		<div class="flex items-center gap-2">
+			<!-- Filtre par ville -->
+			<Input
+				type="text"
+				placeholder="Rechercher par ville..."
+				bind:value={cityFilter}
+				class="w-64 h-9"
+			/>
+
+			<!-- Bouton refresh -->
 			<button
 				onclick={refreshComptes}
 				class="bg-base-200 hover:bg-base-300 cursor-pointer rounded-lg mr-2"
