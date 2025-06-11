@@ -28,6 +28,8 @@
 			if (visitorsStore.isToday) {
 				// For today, use default "day" period with hourly breakdown
 				await visitorsStore.fetchDynamicChart(undefined, 'time:hour');
+				// Refresh des pages et pays pour aujourd'hui
+				await visitorsStore.fetchToday();
 			} else {
 				// For other dates, use the dynamic chart data with date range and appropriate time dimension
 				if (visitorsStore.currentDateRange) {
@@ -48,6 +50,8 @@
 					const timeDimension = visitorsStore.periodType === 'day' ? 'time:hour' : 'time:day';
 
 					await visitorsStore.fetchDynamicChart(dateRange, timeDimension);
+					// Refresh des pages et pays pour la période sélectionnée
+					await visitorsStore.fetchAllData(visitorsStore.currentDateRange);
 				} else {
 					await visitorsStore.fetchDynamicChart();
 				}

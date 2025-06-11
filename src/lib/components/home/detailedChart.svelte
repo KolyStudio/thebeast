@@ -4,6 +4,8 @@
 	import { ventesStore, parsePayoutToNumber } from '$lib/api/ventes.svelte';
 	import { onMount } from 'svelte';
 
+	let USDtoEUR = 0.8742424;
+
 	// Props with types
 	let { period = 'ce mois-ci' } = $props<{
 		period?: string;
@@ -69,7 +71,7 @@
 						<div class="font-medium text-xs text-neutral-content">Ventes</div>
 					</div>
 					<div class="md:text-2xl text-lg font-bold px-4">
-						{formatAmount(ventesValue)}<span class="text-xs px-1 align-super">$</span>
+						{formatAmount(ventesValue * USDtoEUR)}<span class="text-xs px-1 align-super">€</span>
 					</div>
 				</div>
 			</div>
@@ -85,7 +87,7 @@
 						<div class="font-medium text-xs text-neutral-content">Dépenses</div>
 					</div>
 					<div class="md:text-2xl text-lg font-bold px-4">
-						{formatAmount(expensesValue)}<span class="text-xs px-1 align-super">$</span>
+						{formatAmount(expensesValue)}<span class="text-xs px-1 align-super">€</span>
 					</div>
 				</div>
 			</div>
@@ -101,7 +103,7 @@
 						<div class="font-medium text-xs text-neutral-content">Bénéfice</div>
 					</div>
 					<div class="md:text-2xl text-lg font-bold px-4">
-						{formatAmount(profit)}<span class="text-xs px-1 align-super">$</span>
+						{formatAmount(profit)}<span class="text-xs px-1 align-super">€</span>
 					</div>
 				</div>
 			</div>

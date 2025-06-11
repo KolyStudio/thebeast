@@ -2,6 +2,7 @@
 	import * as Accordion from '$lib/components/ui/accordion';
 	import { parsePayoutToNumber } from '$lib/api/ventes.svelte';
 
+	let USDtoEUR = 0.8742424;
 	// Types simplifiés pour les ventes
 	interface PeriodStats {
 		ventes: number;
@@ -51,8 +52,8 @@
 						? 'disabled text-[#e4e2e2]'
 						: ''}"
 			>
-				{parsePayoutToNumber(stats[getPeriodKey()].payout).toFixed(2)}<span
-					class="text-xs px-1 align-super">$</span
+				{parsePayoutToNumber(stats[getPeriodKey()].payout * USDtoEUR).toFixed(2)}<span
+					class="text-xs px-1 align-super">€</span
 				>
 			</p>
 		</div>
@@ -73,26 +74,16 @@
 	</header>
 
 	<!-- Accordéon pour les détails -->
-	<Accordion.Root type="single">
-		<Accordion.Item value="item-1">
-			<Accordion.Trigger variant="statistiques">
-				<footer class="flex items-center justify-between pb-0.5 w-full">
-					<div class="flex items-center space-x-2">
-						<span class={getStatItemClass(stats[getPeriodKey()].ventes)}>
-							{stats[getPeriodKey()].ventes}
-						</span>
-						<p class={statLabelClass}>VENTES</p>
-					</div>
-					<p class="text-xs font-bold text-success">
-						{parsePayoutToNumber(stats[getPeriodKey()].payout).toFixed(2)} $
-					</p>
-				</footer>
-			</Accordion.Trigger>
-			<Accordion.Content>
-				<div class="flex flex-col">
-					<p class="text-sm text-neutral-content">Détails des ventes pour {day.toLowerCase()}</p>
-				</div>
-			</Accordion.Content>
-		</Accordion.Item>
-	</Accordion.Root>
+
+	<footer class="flex items-center justify-between pb-0.5 w-full">
+		<div class="flex items-center space-x-2">
+			<span class={getStatItemClass(stats[getPeriodKey()].ventes)}>
+				{stats[getPeriodKey()].ventes}
+			</span>
+			<p class={statLabelClass}>VENTES</p>
+		</div>
+		<p class="text-xs font-bold text-success">
+			{parsePayoutToNumber(stats[getPeriodKey()].payout * USDtoEUR).toFixed(2)} €
+		</p>
+	</footer>
 </section>

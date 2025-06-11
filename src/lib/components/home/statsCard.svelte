@@ -3,6 +3,7 @@
 	import StatsCardItem from './statsCardItem.svelte';
 	import { onMount } from 'svelte';
 	import { ventesStore, parsePayoutToNumber } from '$lib/api/ventes.svelte';
+	import { visitorsStore } from '$lib/api/visitors.svelte';
 
 	// Types simplifiés pour les ventes
 	interface PeriodStats {
@@ -52,8 +53,11 @@
 	}
 
 	// Refresh des statistiques
-	function refreshStats(): void {
+	async function refreshStats(): Promise<void> {
+		// Refresh des données de ventes
 		ventesStore.fetchAllStats();
+		// Refresh des données des visiteurs (pages et pays)
+		await visitorsStore.fetchToday();
 		updateTime = new Date().toLocaleTimeString([], {
 			hour: '2-digit',
 			minute: '2-digit'
@@ -140,7 +144,7 @@
 				</div>
 				<span>{updateTime}</span>
 			</button>
-			<div class="h-10 tabs tabs-box">
+			<div class="h-10 tabs tabs-box flex">
 				<input
 					type="radio"
 					name="my_tabs_1"
@@ -159,7 +163,7 @@
 				<input
 					type="radio"
 					name="my_tabs_1"
-					class="h-8 tab"
+					class="h-8 tab hidden md:flex"
 					aria-label="Ce mois-ci"
 					onchange={handleTabChange}
 				/>

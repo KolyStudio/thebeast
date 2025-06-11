@@ -9,6 +9,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import utc from 'dayjs/plugin/utc';
 
+	let USDtoEUR = 0.8742424;
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 	dayjs.extend(isoWeek);
@@ -47,6 +48,41 @@
 		if (!dateStr) return undefined;
 		const [year, month, day] = dateStr.split('-').map(Number);
 		return new CalendarDate(year, month, day);
+	}
+
+	/**
+	 * Trouve le preset correspondant aux dates données
+	 */
+	function findMatchingPreset(startDateStr: string, endDateStr: string): string | null {
+		const now = dayjs().tz('Europe/Paris');
+
+		// Aujourd'hui
+		const todayStr = now.format('YYYY-MM-DD');
+		if (startDateStr === todayStr && endDateStr === todayStr) {
+			return 'today';
+		}
+
+		// Hier
+		const yesterdayStr = now.subtract(1, 'day').format('YYYY-MM-DD');
+		if (startDateStr === yesterdayStr && endDateStr === yesterdayStr) {
+			return 'yesterday';
+		}
+
+		// Cette semaine
+		const weekStartStr = now.startOf('isoWeek').format('YYYY-MM-DD');
+		const weekEndStr = now.format('YYYY-MM-DD');
+		if (startDateStr === weekStartStr && endDateStr === weekEndStr) {
+			return 'week';
+		}
+
+		// Ce mois
+		const monthStartStr = now.startOf('month').format('YYYY-MM-DD');
+		const monthEndStr = now.format('YYYY-MM-DD');
+		if (startDateStr === monthStartStr && endDateStr === monthEndStr) {
+			return 'month';
+		}
+
+		return null; // Aucun preset ne correspond
 	}
 
 	function handlePresetClick(preset: string) {
@@ -114,7 +150,7 @@
 			await ventesStore.fetchDetailed(startDateStr, endDateStr);
 
 			console.log(
-				`📊 Données récupérées: ${ventesStore.detailed?.count || 0} ventes, total: ${ventesStore.detailed?.totalPayout || 0}$`
+				`📊 Données récupérées: ${ventesStore.detailed?.count || 0} ventes, total: ${ventesStore.detailed?.totalPayout || 0}€`
 			);
 
 			// Mettre à jour les données des visiteurs
@@ -217,7 +253,7 @@
 	const totals = $derived(() => {
 		const totalVentes = ventesData().reduce((sum: number, item: any) => sum + item.ventes, 0);
 		const totalPayout = ventesData().reduce((sum: number, item: any) => sum + item.total, 0);
-		return [totalVentes, totalPayout.toFixed(2) + ' $']; // [Ventes, Total en $]
+		return [totalVentes, (totalPayout * USDtoEUR).toFixed(2) + ' €']; // [Ventes, Total en €]
 	});
 </script>
 
@@ -243,9 +279,14 @@
 				if (dateRangeValue && dateRangeValue.start && dateRangeValue.end) {
 					startDate = dateValueToString(dateRangeValue.start);
 					endDate = dateValueToString(dateRangeValue.end);
-					// Passer en mode personnalisé si une plage est sélectionnée
-					activePreset = 'custom';
-					console.log(`📅 Plage de dates personnalisée: ${startDate} à ${endDate}`);
+
+					// Vérifier si la plage correspond à un preset existant
+					const matchingPreset = findMatchingPreset(startDate, endDate);
+					activePreset = matchingPreset || 'custom';
+
+					console.log(
+						`📅 Plage de dates sélectionnée: ${startDate} à ${endDate} (preset: ${activePreset})`
+					);
 					updateData(startDate, endDate);
 				}
 			}}
@@ -268,7 +309,7 @@
 					>
 					<td class="p-2 h-12">{formatNumber(item.ventes)}</td>
 					<td class="p-2 h-12 font-semibold text-white"
-						>{parsePayoutToNumber(item.total).toFixed(2)} $</td
+						>{parsePayoutToNumber(item.total * USDtoEUR).toFixed(2)} €</td
 					>
 				</tr>
 			{/each}

@@ -1,22 +1,18 @@
 <script lang="ts">
-	import CalendarIcon from "@lucide/svelte/icons/calendar";
-	import {
-		type DateValue,
-		DateFormatter,
-		getLocalTimeZone,
-	} from "@internationalized/date";
-	import { cn } from "$lib/utils.js";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import { Calendar } from "$lib/components/ui/calendar/index.js";
-	import * as Popover from "$lib/components/ui/popover/index.js";
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import { type DateValue, DateFormatter, getLocalTimeZone } from '@internationalized/date';
+	import { cn } from '$lib/utils.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { Calendar } from '$lib/components/ui/calendar/index.js';
+	import * as Popover from '$lib/components/ui/popover/index.js';
 
 	/**
 	 * Props du composant DatePicker
 	 */
 	let {
 		value = $bindable(),
-		placeholder = "Sélectionner une date",
-		class: className = "",
+		placeholder = 'Sélectionner une date',
+		class: className = '',
 		disabled = false,
 		...restProps
 	}: {
@@ -29,8 +25,8 @@
 	/**
 	 * Formateur de date pour l'affichage
 	 */
-	const df = new DateFormatter("fr-FR", {
-		dateStyle: "long",
+	const df = new DateFormatter('fr-FR', {
+		dateStyle: 'long'
 	});
 
 	/**
@@ -45,8 +41,8 @@
 			<Button
 				variant="outline"
 				class={cn(
-					"w-[280px] justify-start text-left font-normal",
-					!value && "text-muted-foreground",
+					'w-[280px] justify-start text-left font-normal',
+					!value && 'text-muted-foreground',
 					className
 				)}
 				{disabled}
@@ -59,10 +55,10 @@
 		{/snippet}
 	</Popover.Trigger>
 	<Popover.Content class="w-auto p-0">
-		<Calendar 
-			bind:value 
-			type="single" 
-			initialFocus 
+		<Calendar
+			bind:value
+			type="single"
+			initialFocus
 			onchange={() => {
 				// Fermer le popover après sélection
 				open = false;

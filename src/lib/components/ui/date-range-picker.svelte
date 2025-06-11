@@ -1,22 +1,18 @@
 <script lang="ts">
-	import CalendarIcon from "@lucide/svelte/icons/calendar";
-	import {
-		type DateValue,
-		DateFormatter,
-		getLocalTimeZone,
-	} from "@internationalized/date";
-	import { cn } from "$lib/utils.js";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import { RangeCalendar } from "$lib/components/ui/range-calendar/index.js";
-	import * as Popover from "$lib/components/ui/popover/index.js";
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import { type DateValue, DateFormatter, getLocalTimeZone } from '@internationalized/date';
+	import { cn } from '$lib/utils.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { RangeCalendar } from '$lib/components/ui/range-calendar/index.js';
+	import * as Popover from '$lib/components/ui/popover/index.js';
 
 	/**
 	 * Props du composant DateRangePicker
 	 */
 	let {
 		value = $bindable(),
-		placeholder = "Sélectionner une plage de dates",
-		class: className = "",
+		placeholder = 'Sélectionner une plage de dates',
+		class: className = '',
 		disabled = false,
 		onchange,
 		...restProps
@@ -31,8 +27,8 @@
 	/**
 	 * Formateur de date pour l'affichage
 	 */
-	const df = new DateFormatter("fr-FR", {
-		dateStyle: "medium",
+	const df = new DateFormatter('fr-FR', {
+		dateStyle: 'medium'
 	});
 
 	/**
@@ -47,10 +43,10 @@
 		if (!value || !value.start || !value.end) {
 			return placeholder;
 		}
-		
+
 		const startFormatted = df.format(value.start.toDate(getLocalTimeZone()));
 		const endFormatted = df.format(value.end.toDate(getLocalTimeZone()));
-		
+
 		return `${startFormatted} - ${endFormatted}`;
 	}
 
@@ -84,8 +80,8 @@
 			<Button
 				variant="outline"
 				class={cn(
-					"w-[320px] justify-start text-left font-normal",
-					!value && "text-muted-foreground",
+					'w-[320px] justify-start text-left font-normal',
+					!value && 'text-muted-foreground',
 					className
 				)}
 				{disabled}
@@ -98,11 +94,6 @@
 		{/snippet}
 	</Popover.Trigger>
 	<Popover.Content class="w-auto p-0">
-		<RangeCalendar 
-			bind:value 
-			initialFocus 
-			locale="fr-FR"
-			onvaluechange={handleCalendarChange}
-		/>
+		<RangeCalendar bind:value initialFocus locale="fr-FR" onvaluechange={handleCalendarChange} />
 	</Popover.Content>
 </Popover.Root>

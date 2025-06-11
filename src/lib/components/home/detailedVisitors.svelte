@@ -126,9 +126,13 @@
 
 	// Auto-refresh function
 	function startAutoRefresh() {
-		refreshInterval = setInterval(() => {
+		refreshInterval = setInterval(async () => {
+			// Refresh des données du graphique 30 minutes
 			fetch30MinuteData();
+			// Refresh des top stats (visiteurs actuels, etc.)
 			fetchTopStatsData();
+			// Refresh des pages les plus visitées et pays les plus actifs
+			await visitorsStore.fetchToday();
 		}, 120000);
 	}
 
