@@ -144,7 +144,7 @@
 				</div>
 				<span>{updateTime}</span>
 			</button>
-			<div class="h-10 tabs tabs-box flex">
+			<div class="h-10 tabs tabs-box flex w-full">
 				<input
 					type="radio"
 					name="my_tabs_1"
