@@ -129,9 +129,9 @@
 <section class="flex flex-col gap-3 md:w-1/2 w-full">
 	<section class="w-full p-1.5 bg-base-100 border border-base-300 rounded-xl">
 		<!-- Refresh + Tabs -->
-		<header class="flex items-start justify-between">
+		<header class="flex items-start justify-center md:justify-between">
 			<button
-				class="flex items-center p-1 px-2 space-x-2 text-sm font-semibold rounded-lg cursor-pointer bg-base-200 hover:bg-base-300"
+				class="md:flex hidden items-center p-1 px-2 space-x-2 text-sm font-semibold rounded-lg cursor-pointer bg-base-200 hover:bg-base-300"
 				onclick={refreshStats}
 			>
 				<div class="inline-grid *:[grid-area:1/1]">
