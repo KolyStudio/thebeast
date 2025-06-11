@@ -1,20 +1,25 @@
 <script lang="ts">
-	import { statsStore } from '$lib/api/stats.svelte';
+	import { ventesStore, parsePayoutToNumber } from '$lib/api/ventes.svelte';
 	import { visitorsStore } from '$lib/api/visitors.svelte';
+	import DateRangePicker from '$lib/components/ui/date-range-picker.svelte';
+	import { CalendarDate, type DateValue } from '@internationalized/date';
 	import dayjs from 'dayjs';
 	import 'dayjs/locale/fr';
 	import isoWeek from 'dayjs/plugin/isoWeek';
 	import timezone from 'dayjs/plugin/timezone';
 	import utc from 'dayjs/plugin/utc';
 
-	dayjs.extend(isoWeek);
-	dayjs.extend(timezone);
 	dayjs.extend(utc);
+	dayjs.extend(timezone);
+	dayjs.extend(isoWeek);
 	dayjs.locale('fr');
 
 	let activePreset = $state('today');
 	let startDate = $state('');
 	let endDate = $state('');
+
+	// Variable pour le DateRangePicker de Shadcn
+	let dateRangeValue = $state<{ start: DateValue; end: DateValue } | undefined>();
 
 	const presetItems = [
 		{ label: "Aujourd'hui", value: 'today' },
@@ -24,28 +29,46 @@
 		{ label: 'Personnalisé', value: 'custom' }
 	];
 
-	// En-têtes du tableau
-	const headers = [
-		'S1',
-		'Clics',
-		'Inscrits',
-		'Essais',
-		'Essais (€)',
-		'Bills',
-		'Bills (€)',
-		'Upsells (€)',
-		'Rebill (€)',
-		'Impayés',
-		'Total'
-	];
+	// En-têtes du tableau avec source
+	const headers = ['Source', 'Ventes', 'Total'];
+
+	/**
+	 * Convertit une DateValue en string YYYY-MM-DD
+	 */
+	function dateValueToString(dateValue: DateValue | undefined): string {
+		if (!dateValue) return '';
+		return `${dateValue.year}-${String(dateValue.month).padStart(2, '0')}-${String(dateValue.day).padStart(2, '0')}`;
+	}
+
+	/**
+	 * Convertit une string YYYY-MM-DD en DateValue
+	 */
+	function stringToDateValue(dateStr: string): DateValue | undefined {
+		if (!dateStr) return undefined;
+		const [year, month, day] = dateStr.split('-').map(Number);
+		return new CalendarDate(year, month, day);
+	}
 
 	function handlePresetClick(preset: string) {
 		if (preset === 'custom') {
 			activePreset = 'custom';
+			// Pour le mode personnalisé, initialiser avec les dates actuelles si vides
+			if (!startDate || !endDate) {
+				const now = dayjs().tz('Europe/Paris');
+				startDate = now.format('YYYY-MM-DD');
+				endDate = now.format('YYYY-MM-DD');
+				// Synchroniser avec le DateRangePicker
+				const startVal = stringToDateValue(startDate);
+				const endVal = stringToDateValue(endDate);
+				if (startVal && endVal) {
+					dateRangeValue = { start: startVal, end: endVal };
+				}
+			}
 			return;
 		}
 
-		const now = dayjs();
+		// Utiliser la timezone Europe/Paris pour être cohérent avec l'API
+		const now = dayjs().tz('Europe/Paris');
 		let startDateStr: string;
 		let endDateStr: string;
 
@@ -72,32 +95,68 @@
 		startDate = startDateStr;
 		endDate = endDateStr;
 
-		updateData(dayjs(startDateStr), dayjs(endDateStr));
+		// Synchroniser avec le DateRangePicker
+		const startVal = stringToDateValue(startDateStr);
+		const endVal = stringToDateValue(endDateStr);
+		if (startVal && endVal) {
+			dateRangeValue = { start: startVal, end: endVal };
+		}
+
+		console.log(`📅 Filtrage des ventes: ${startDateStr} à ${endDateStr} (preset: ${preset})`);
+		updateData(startDateStr, endDateStr);
 	}
 
-	async function updateData(start: dayjs.Dayjs, end: dayjs.Dayjs) {
-		// Mettre à jour les données des stats
-		await statsStore.fetchDetailed(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+	async function updateData(startDateStr: string, endDateStr: string) {
+		console.log(`🔄 Mise à jour des données: ${startDateStr} à ${endDateStr}`);
 
-		// Mettre à jour les données des visiteurs
-		const dateRange = {
-			start: {
-				year: start.year(),
-				month: start.month() + 1, // dayjs months are 0-indexed, but our API expects 1-indexed
-				day: start.date()
-			},
-			end: {
-				year: end.year(),
-				month: end.month() + 1,
-				day: end.date()
-			}
-		};
+		try {
+			// Mettre à jour les données des ventes
+			await ventesStore.fetchDetailed(startDateStr, endDateStr);
 
-		await visitorsStore.fetchAllData(dateRange);
+			console.log(
+				`📊 Données récupérées: ${ventesStore.detailed?.count || 0} ventes, total: ${ventesStore.detailed?.totalPayout || 0}€`
+			);
+
+			// Mettre à jour les données des visiteurs
+			const startDate = dayjs(startDateStr);
+			const endDate = dayjs(endDateStr);
+
+			const dateRange = {
+				start: {
+					year: startDate.year(),
+					month: startDate.month() + 1, // dayjs months are 0-indexed, but our API expects 1-indexed
+					day: startDate.date()
+				},
+				end: {
+					year: endDate.year(),
+					month: endDate.month() + 1,
+					day: endDate.date()
+				}
+			};
+
+			await visitorsStore.fetchAllData(dateRange);
+		} catch (error) {
+			console.error('❌ Erreur lors de la mise à jour des données:', error);
+		}
 	}
+
+	// Surveillance des changements dans le store des ventes
+	$effect(() => {
+		if (ventesStore.detailed) {
+			console.log('📊 Store des ventes mis à jour:', {
+				count: ventesStore.detailed.count,
+				totalPayout: ventesStore.detailed.totalPayout,
+				resultsLength: ventesStore.detailed.results?.length || 0,
+				firstResult: ventesStore.detailed.results?.[0],
+				isLoading: ventesStore.isLoading.detailed,
+				error: ventesStore.errors.detailed
+			});
+		}
+	});
 
 	// Chargement initial
 	$effect(() => {
+		console.log('🚀 Initialisation du composant tableStats');
 		handlePresetClick('today');
 	});
 
@@ -110,92 +169,61 @@
 		return num.toFixed(2);
 	}
 
-	function formatCurrency(value: string | number | undefined | null): string {
-		const formatted = formatNumber(value);
-		return formatted === '-' ? '-' : `${formatted} €`;
-	}
-
-	function sumColumn(index: number) {
-		if (!statsStore.detailed?.results) {
-			return 0;
+	// Données simplifiées pour les ventes groupées par source
+	const ventesData = $derived(() => {
+		if (!ventesStore.detailed?.results) {
+			console.log('⚠️ Aucune donnée de ventes disponible');
+			return [];
 		}
-		const sum = statsStore.detailed.results.reduce(
-			(sum: number, row: any) => sum + (parseFloat(row[index]) || 0),
-			0
-		);
-		return sum;
-	}
 
-	const sortedResults = $derived(
-		mergeRowsByS1([...(statsStore.detailed?.results || [])])
-			.filter((row) => {
-				const clicks = row[2] === '-' ? 0 : parseFloat(row[2] || '0');
-				const inscrits = row[3] === '-' ? 0 : parseFloat(row[3] || '0');
-				const total = row[16] === '-' ? 0 : parseFloat(row[16] || '0');
-				return clicks !== 0 || inscrits !== 0 || total !== 0;
-			})
+		console.log(`📈 Traitement de ${ventesStore.detailed.results.length} ventes`);
+
+		// Grouper les ventes par source
+		const groupedBySource = new Map<string, { count: number; payout: number }>();
+
+		ventesStore.detailed.results.forEach((vente) => {
+			// Utiliser la vraie valeur de source de la BDD, ou 'Inconnu' si vide/null
+			const source = vente.source?.trim() || 'Inconnu';
+			const current = groupedBySource.get(source) || { count: 0, payout: 0 };
+			const payoutValue = parsePayoutToNumber(vente.payout);
+
+			groupedBySource.set(source, {
+				count: current.count + 1,
+				payout: current.payout + payoutValue
+			});
+		});
+
+		// Convertir en format tableau et trier par total décroissant, puis par nombre de ventes
+		const result = Array.from(groupedBySource.entries())
+			.map(([source, data]) => ({
+				source,
+				ventes: data.count,
+				total: data.payout
+			}))
 			.sort((a, b) => {
-				const totalA = a[16] === '-' ? 0 : parseFloat(a[16] || '0');
-				const totalB = b[16] === '-' ? 0 : parseFloat(b[16] || '0');
-				if (totalB !== totalA) {
-					return totalB - totalA;
+				// Trier d'abord par total (décroissant)
+				if (b.total !== a.total) {
+					return b.total - a.total;
 				}
-				// En cas d'égalité des totaux, trier par nombre d'inscrits
-				const inscritsA = a[3] === '-' ? 0 : parseFloat(a[3] || '0');
-				const inscritsB = b[3] === '-' ? 0 : parseFloat(b[3] || '0');
-				return inscritsB - inscritsA;
-			})
-	);
+				// En cas d'égalité, trier par nombre de ventes (décroissant)
+				return b.ventes - a.ventes;
+			});
 
-	function mergeRowsByS1(rows: string[][]) {
-		const mergedRows = new Map<string, string[]>();
+		console.log(`📊 Données groupées par source:`, result);
+		return result;
+	});
 
-		for (const row of rows) {
-			const s1 = row[0];
-			if (!mergedRows.has(s1)) {
-				mergedRows.set(s1, [...row]);
-			} else {
-				const existingRow = mergedRows.get(s1)!;
-				// Additionner les valeurs numériques
-				for (let i = 2; i < row.length; i++) {
-					const existingValue = existingRow[i] === '-' ? 0 : parseFloat(existingRow[i] || '0');
-					const newValue = row[i] === '-' ? 0 : parseFloat(row[i] || '0');
-					const sum = existingValue + newValue;
-					existingRow[i] = sum === 0 ? '-' : sum.toString();
-				}
-			}
-		}
-
-		return Array.from(mergedRows.values());
-	}
-
-	// Calcul des totaux - doit correspondre exactement aux colonnes affichées
-	const totals = $derived.by(() => {
-		if (!statsStore.detailed?.results) {
-			return Array(headers.length - 1).fill('-');
-		}
-
-		const results = [];
-		// Ordre des colonnes dans le tableau :
-		// Clics (index 2), Inscrits (3), Essais (4), Essais € (9), Bills (5), Bills € (13), Upsells € (10), Rebill € (14), Impayés (8), Total € (16)
-		const columnIndices = [2, 3, 4, 9, 5, 13, 10, 14, 8, 16];
-		const currencyColumns = [9, 13, 10, 14, 16]; // Colonnes monétaires
-
-		for (const columnIndex of columnIndices) {
-			const sum = sumColumn(columnIndex);
-			if (currencyColumns.includes(columnIndex)) {
-				results.push(formatCurrency(sum));
-			} else {
-				results.push(formatNumber(sum));
-			}
-		}
-		return results;
+	// Calcul des totaux
+	const totals = $derived(() => {
+		const totalVentes = ventesData().reduce((sum: number, item: any) => sum + item.ventes, 0);
+		const totalPayout = ventesData().reduce((sum: number, item: any) => sum + item.total, 0);
+		return [totalVentes, totalPayout.toFixed(2) + ' €']; // [Ventes, Total en €]
 	});
 </script>
 
 <div class="overflow-x-auto my-3 text-sm bg-base-100 border border-base-200 rounded-lg w-full">
 	<!-- Sélecteur de dates -->
-	<div class="flex items-center gap-2 cursor-pointer">
+	<div class="flex md:flex-row flex-col items-center gap-2 cursor-pointer md:mb-0 mb-2">
 		<select
 			class="select select-neutral w-[200px] bg-base-300 m-2 outline-0 cursor-pointer hover:bg-base-200"
 			bind:value={activePreset}
@@ -206,22 +234,22 @@
 			{/each}
 		</select>
 
-		{#if activePreset != 'custom'}
-			<div class="flex gap-2">
-				<input
-					type="date"
-					class="input input-bordered bg-base-300 hover:bg-base-200"
-					bind:value={startDate}
-					onchange={() => updateData(dayjs(startDate), dayjs(endDate))}
-				/>
-				<input
-					type="date"
-					class="input input-bordered bg-base-300 hover:bg-base-200"
-					bind:value={endDate}
-					onchange={() => updateData(dayjs(startDate), dayjs(endDate))}
-				/>
-			</div>
-		{/if}
+		<!-- DateRangePicker toujours visible -->
+		<DateRangePicker
+			bind:value={dateRangeValue}
+			placeholder="Sélectionner une plage de dates"
+			class="w-[320px]"
+			onchange={() => {
+				if (dateRangeValue && dateRangeValue.start && dateRangeValue.end) {
+					startDate = dateValueToString(dateRangeValue.start);
+					endDate = dateValueToString(dateRangeValue.end);
+					// Passer en mode personnalisé si une plage est sélectionnée
+					activePreset = 'custom';
+					console.log(`📅 Plage de dates personnalisée: ${startDate} à ${endDate}`);
+					updateData(startDate, endDate);
+				}
+			}}
+		/>
 	</div>
 
 	<table class="w-full border-collapse overflow-hidden font-medium text-center">
@@ -233,26 +261,22 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each sortedResults as row, index}
+			{#each ventesData() as item}
 				<tr class="bg-base-100 text-neutral-content/80">
-					<td class="p-2 h-12 first:rounded-bl-lg last:rounded-br-lg first:text-left">{row[0]}</td>
-					<td class="p-2 h-12">{formatNumber(row[2])}</td>
-					<td class="p-2 h-12">{formatNumber(row[3])}</td>
-					<td class="p-2 h-12">{formatNumber(row[4])}</td>
-					<td class="p-2 h-12">{formatCurrency(row[9])}</td>
-					<td class="p-2 h-12">{formatNumber(row[5])}</td>
-					<td class="p-2 h-12">{formatCurrency(row[13])}</td>
-					<td class="p-2 h-12">{formatCurrency(row[10])}</td>
-					<td class="p-2 h-12">{formatCurrency(row[14])}</td>
-					<td class="p-2 h-12">{formatNumber(row[8])}</td>
-					<td class="p-2 h-12 font-semibold text-white">{formatCurrency(row[16])}</td>
+					<td class="p-2 h-12 first:rounded-bl-lg last:rounded-br-lg first:text-left"
+						>{item.source}</td
+					>
+					<td class="p-2 h-12">{formatNumber(item.ventes)}</td>
+					<td class="p-2 h-12 font-semibold text-white"
+						>{parsePayoutToNumber(item.total).toFixed(2)} €</td
+					>
 				</tr>
 			{/each}
 			<!-- Ligne de total -->
-			{#if sortedResults.length > 0}
+			{#if ventesData().length > 0}
 				<tr class="bg-base-200 font-bold">
 					<td class="p-2 h-12 first:text-left">Total</td>
-					{#each totals as total}
+					{#each totals() as total}
 						<td class="p-2 h-12">{total}</td>
 					{/each}
 				</tr>

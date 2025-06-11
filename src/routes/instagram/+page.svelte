@@ -7,8 +7,8 @@
 	import TableAccounts from '$lib/components/instagram/tableAccounts.svelte';
 
 	import DeleteConfirmationDialog from '$lib/components/ui/delete-confirmation-dialog.svelte';
-	import BulkStatusChangeDialog from '$lib/components/ui/bulk-status-change-dialog.svelte';
-	import BulkOrderDialog from '$lib/components/ui/bulk-order-dialog.svelte';
+	import BulkStatusChangeDialog from '$lib/components/instagram/bulkStatutEdit.svelte';
+	import BulkOrderDialog from '$lib/components/instagram/bulkOrder.svelte';
 	import { Shield, ShoppingCart } from '@lucide/svelte';
 	import { instagramAccountsStore, type InstagramAccount } from '$lib/api/instagramAccounts.svelte';
 

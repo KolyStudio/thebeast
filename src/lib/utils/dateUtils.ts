@@ -4,10 +4,14 @@
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import 'dayjs/locale/fr';
 
-// Configuration de dayjs avec le plugin relativeTime et la locale française
+// Configuration de dayjs avec les plugins et la locale française
 dayjs.extend(relativeTime);
+dayjs.extend(timezone);
+dayjs.extend(utc);
 dayjs.locale('fr');
 
 /**
@@ -21,8 +25,8 @@ export function formatRelativeTime(date: string | Date | null | undefined): stri
   }
 
   try {
-    const targetDate = dayjs(date);
-    const now = dayjs();
+    const targetDate = dayjs(date).tz('Europe/Paris');
+    const now = dayjs().tz('Europe/Paris');
 
     // Vérifier si la date est valide
     if (!targetDate.isValid()) {
@@ -57,7 +61,7 @@ export function formatShortDate(date: string | Date | null | undefined): string 
   }
 
   try {
-    const targetDate = dayjs(date);
+    const targetDate = dayjs(date).tz('Europe/Paris');
     if (!targetDate.isValid()) {
       return 'Date invalide';
     }
@@ -80,7 +84,7 @@ export function formatFullDate(date: string | Date | null | undefined): string {
   }
 
   try {
-    const targetDate = dayjs(date);
+    const targetDate = dayjs(date).tz('Europe/Paris');
     if (!targetDate.isValid()) {
       return 'Date invalide';
     }
@@ -101,8 +105,8 @@ export function isToday(date: string | Date | null | undefined): boolean {
   if (!date) return false;
 
   try {
-    const targetDate = dayjs(date);
-    return targetDate.isSame(dayjs(), 'day');
+    const targetDate = dayjs(date).tz('Europe/Paris');
+    return targetDate.isSame(dayjs().tz('Europe/Paris'), 'day');
   } catch (error) {
     return false;
   }
@@ -117,8 +121,8 @@ export function isYesterday(date: string | Date | null | undefined): boolean {
   if (!date) return false;
 
   try {
-    const targetDate = dayjs(date);
-    return targetDate.isSame(dayjs().subtract(1, 'day'), 'day');
+    const targetDate = dayjs(date).tz('Europe/Paris');
+    return targetDate.isSame(dayjs().tz('Europe/Paris').subtract(1, 'day'), 'day');
   } catch (error) {
     return false;
   }
@@ -133,8 +137,8 @@ export function getTimeElapsed(date: string | Date | null | undefined): number {
   if (!date) return 0;
 
   try {
-    const targetDate = dayjs(date);
-    return dayjs().diff(targetDate);
+    const targetDate = dayjs(date).tz('Europe/Paris');
+    return dayjs().tz('Europe/Paris').diff(targetDate);
   } catch (error) {
     return 0;
   }

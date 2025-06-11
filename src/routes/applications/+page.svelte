@@ -10,7 +10,6 @@
 		X,
 		Info
 	} from 'lucide-svelte';
-	import DeleteConfirmationDialog from '$lib/components/ui/delete-confirmation-dialog.svelte';
 	import AddApplicationDialog, {
 		type ApplicationData
 	} from '$lib/components/applications/addAccount.svelte';
@@ -23,6 +22,9 @@
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import 'dayjs/locale/fr';
+	import DeleteConfirmationDialog from '$lib/components/ui/delete-confirmation-dialog.svelte';
+	import BulkStatusChangeDialog from '$lib/components/instagram/bulkStatutEdit.svelte';
+	import BulkOrderDialog from '$lib/components/instagram/bulkOrder.svelte';
 
 	// Configuration de dayjs
 	dayjs.extend(relativeTime);

@@ -1,18 +1,11 @@
 <script lang="ts">
 	import * as Accordion from '$lib/components/ui/accordion';
+	import { parsePayoutToNumber } from '$lib/api/ventes.svelte';
 
-	// Types
-	interface Transaction {
-		label: string;
-		count: number;
-		amount: number;
-	}
-
+	// Types simplifiés pour les ventes
 	interface PeriodStats {
-		revenue: number;
-		clicks: number;
-		signups: number;
-		transactions: Transaction[];
+		ventes: number;
+		payout: number;
 		goal: {
 			current: number;
 			target: number;
@@ -41,15 +34,6 @@
 		return `${baseClass} bg-base-200 text-neutral-content`;
 	}
 
-	// Helper function to get value class with conditional styling
-	function getValueClass(value: number): string {
-		const baseClass = 'text-xs font-bold';
-		if (value > 0) {
-			return `${baseClass} text-success`;
-		}
-		return `${baseClass} text-text-neutral-content`;
-	}
-
 	// Classes réutilisables pour les éléments communs
 	const statLabelClass = 'text-xs font-bold text-neutral-content';
 </script>
@@ -61,27 +45,29 @@
 		<div>
 			<h2 class="text-sm font-medium text-neutral-content">{day}</h2>
 			<p
-				class="text-3xl font-extrabold {stats[getPeriodKey()].revenue > 0
+				class="text-3xl font-extrabold {parsePayoutToNumber(stats[getPeriodKey()].payout) > 0
 					? 'text-success'
-					: stats[getPeriodKey()].revenue === 0
+					: parsePayoutToNumber(stats[getPeriodKey()].payout) === 0
 						? 'disabled text-[#e4e2e2]'
 						: ''}"
 			>
-				{stats[getPeriodKey()].revenue.toFixed(2)}<span class="text-xs px-1 align-super">€</span>
+				{parsePayoutToNumber(stats[getPeriodKey()].payout).toFixed(2)}<span
+					class="text-xs px-1 align-super">€</span
+				>
 			</p>
 		</div>
 		<div class="flex items-center justify-between space-x-4 text-center">
 			<article>
-				<div class="flex items-center justify-center w-16 h-8 font-bold rounded-lg bg-base-200">
-					{stats[getPeriodKey()].clicks}
+				<div
+					class="flex items-center justify-center w-16 h-8 font-bold rounded-lg {stats[
+						getPeriodKey()
+					].ventes > 0
+						? 'bg-success/10 text-success'
+						: 'bg-base-200'}"
+				>
+					{stats[getPeriodKey()].ventes}
 				</div>
-				<p class="mt-1 text-xs font-semibold text-neutral-content">CLICS</p>
-			</article>
-			<article>
-				<div class="flex items-center justify-center w-16 h-8 font-bold rounded-lg bg-base-200">
-					{stats[getPeriodKey()].signups}
-				</div>
-				<p class="mt-1 text-xs font-semibold text-neutral-content">INSCRITS</p>
+				<p class="mt-1 text-xs font-semibold text-neutral-content">VENTES</p>
 			</article>
 		</div>
 	</header>
@@ -92,31 +78,19 @@
 			<Accordion.Trigger variant="statistiques">
 				<footer class="flex items-center justify-between pb-0.5 w-full">
 					<div class="flex items-center space-x-2">
-						<span class={getStatItemClass(stats[getPeriodKey()].transactions[0].count)}>
-							{stats[getPeriodKey()].transactions[0].count}
+						<span class={getStatItemClass(stats[getPeriodKey()].ventes)}>
+							{stats[getPeriodKey()].ventes}
 						</span>
-						<p class={statLabelClass}>ESSAIS</p>
+						<p class={statLabelClass}>VENTES</p>
 					</div>
-					<p class={getValueClass(stats[getPeriodKey()].transactions[0].amount)}>
-						{stats[getPeriodKey()].transactions[0].amount.toFixed(2)} EUR
+					<p class="text-xs font-bold text-success">
+						{parsePayoutToNumber(stats[getPeriodKey()].payout).toFixed(2)} €
 					</p>
 				</footer>
 			</Accordion.Trigger>
 			<Accordion.Content>
 				<div class="flex flex-col">
-					<ul class="space-y-0.5">
-						{#each stats[getPeriodKey()].transactions.slice(1) as transaction}
-							<li class="flex items-center justify-between">
-								<div class="flex items-center gap-2">
-									<span class={getStatItemClass(transaction.count)}>{transaction.count}</span>
-									<span class={statLabelClass}>{transaction.label}</span>
-								</div>
-								<span class={getValueClass(transaction.amount)}
-									>{transaction.amount.toFixed(2)} EUR</span
-								>
-							</li>
-						{/each}
-					</ul>
+					<p class="text-sm text-neutral-content">Détails des ventes pour {day.toLowerCase()}</p>
 				</div>
 			</Accordion.Content>
 		</Accordion.Item>

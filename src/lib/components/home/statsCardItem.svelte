@@ -58,7 +58,7 @@
 	</div>
 
 	<div class="text-sm font-bold">
-		{value.toFixed()}/{max}
+		{typeof value === 'number' ? Math.round(value) : '0'}/{max}
 	</div>
 	<h3 class="text-xs font-bold text-neutral-content">{title}</h3>
 </div>

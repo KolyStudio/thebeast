@@ -362,7 +362,7 @@
 </script>
 
 <div class="w-full h-full bg-base-100 border border-base-200 rounded-xl p-1.5">
-	<div class="flex divide-x divide-base-100 rounded-lg bg-base-200 w-[50%]">
+	<div class="flex divide-x divide-base-100 rounded-lg bg-base-200 md:w-[50%] w-full">
 		<header class="flex-1 py-1">
 			<div class="w-full">
 				<div>

@@ -16,7 +16,7 @@
 			category: 'DATING',
 			items: [
 				{
-					label: 'Tableau de bord',
+					label: 'Statistiques',
 					href: '/',
 					icon: LayoutDashboard
 				},
