@@ -114,7 +114,7 @@
 			await ventesStore.fetchDetailed(startDateStr, endDateStr);
 
 			console.log(
-				`📊 Données récupérées: ${ventesStore.detailed?.count || 0} ventes, total: ${ventesStore.detailed?.totalPayout || 0}€`
+				`📊 Données récupérées: ${ventesStore.detailed?.count || 0} ventes, total: ${ventesStore.detailed?.totalPayout || 0}$`
 			);
 
 			// Mettre à jour les données des visiteurs
@@ -217,7 +217,7 @@
 	const totals = $derived(() => {
 		const totalVentes = ventesData().reduce((sum: number, item: any) => sum + item.ventes, 0);
 		const totalPayout = ventesData().reduce((sum: number, item: any) => sum + item.total, 0);
-		return [totalVentes, totalPayout.toFixed(2) + ' €']; // [Ventes, Total en €]
+		return [totalVentes, totalPayout.toFixed(2) + ' $']; // [Ventes, Total en $]
 	});
 </script>
 
@@ -268,7 +268,7 @@
 					>
 					<td class="p-2 h-12">{formatNumber(item.ventes)}</td>
 					<td class="p-2 h-12 font-semibold text-white"
-						>{parsePayoutToNumber(item.total).toFixed(2)} €</td
+						>{parsePayoutToNumber(item.total).toFixed(2)} $</td
 					>
 				</tr>
 			{/each}

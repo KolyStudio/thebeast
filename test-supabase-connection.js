@@ -94,7 +94,7 @@ async function testConnection() {
       Array.from(groupedBySource.entries())
         .sort((a, b) => b[1].total - a[1].total)
         .forEach(([source, data]) => {
-          console.log(`  ${source}: ${data.count} ventes - ${data.payout.toFixed(2)}€`);
+          console.log(`  ${source}: ${data.count} ventes - ${data.payout.toFixed(2)}$`);
         });
     }
 

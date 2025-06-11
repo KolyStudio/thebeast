@@ -29,7 +29,7 @@ async function createTestData() {
       venteDate.setHours(Math.floor(Math.random() * 24));
       venteDate.setMinutes(Math.floor(Math.random() * 60));
 
-      // Générer un payout aléatoire entre 10€ et 500€
+      // Générer un payout aléatoire entre 10$ et 500$
       const payout = Math.round((Math.random() * 490 + 10) * 100) / 100;
 
       // Sources possibles pour les ventes
@@ -75,7 +75,7 @@ async function createTestData() {
       .sort(([a], [b]) => b.localeCompare(a))
       .slice(0, 7)
       .forEach(([jour, data]) => {
-        console.log(`  ${jour}: ${data.count} ventes - ${data.payout.toFixed(2)}€`);
+        console.log(`  ${jour}: ${data.count} ventes - ${data.payout.toFixed(2)}$`);
       });
 
   } catch (error) {

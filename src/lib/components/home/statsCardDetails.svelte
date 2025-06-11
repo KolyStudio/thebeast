@@ -52,7 +52,7 @@
 						: ''}"
 			>
 				{parsePayoutToNumber(stats[getPeriodKey()].payout).toFixed(2)}<span
-					class="text-xs px-1 align-super">€</span
+					class="text-xs px-1 align-super">$</span
 				>
 			</p>
 		</div>
@@ -84,7 +84,7 @@
 						<p class={statLabelClass}>VENTES</p>
 					</div>
 					<p class="text-xs font-bold text-success">
-						{parsePayoutToNumber(stats[getPeriodKey()].payout).toFixed(2)} €
+						{parsePayoutToNumber(stats[getPeriodKey()].payout).toFixed(2)} $
 					</p>
 				</footer>
 			</Accordion.Trigger>
