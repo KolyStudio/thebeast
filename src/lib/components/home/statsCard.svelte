@@ -144,7 +144,7 @@
 				</div>
 				<span>{updateTime}</span>
 			</button>
-			<div class="h-10 tabs tabs-box flex w-full">
+			<div class="h-10 tabs tabs-box flex w-full md:w-auto">
 				<input
 					type="radio"
 					name="my_tabs_1"
@@ -163,7 +163,7 @@
 				<input
 					type="radio"
 					name="my_tabs_1"
-					class="h-8 tab hidden md:flex"
+					class="h-8 tab"
 					aria-label="Ce mois-ci"
 					onchange={handleTabChange}
 				/>
