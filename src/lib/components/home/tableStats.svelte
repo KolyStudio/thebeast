@@ -259,7 +259,7 @@
 
 <div class="overflow-x-auto my-3 text-sm bg-base-100 border border-base-200 rounded-lg w-full">
 	<!-- Sélecteur de dates -->
-	<div class="flex md:flex-row flex-col items-center gap-2 cursor-pointer md:mb-0 mb-2">
+	<div class="flex md:flex-row flex-col items-center gap-2 md:mb-0 mb-2">
 		<select
 			class="select select-neutral w-[200px] bg-base-300 m-2 outline-0 cursor-pointer hover:bg-base-200"
 			bind:value={activePreset}

@@ -440,7 +440,7 @@
 									<div class="status status-error animate-ping"></div>
 									<div class="status status-error"></div>
 								</div>
-								Visiteurs actuels
+								Live
 							</div>
 						</div>
 						<div class="text-2xl font-bold px-2">
