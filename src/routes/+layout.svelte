@@ -1,0 +1,22 @@
+<script>
+	let { children } = $props();
+	import '../app.css';
+	import '@fontsource/saira-semi-condensed';
+	import '@fontsource-variable/inter';
+	import Sidebar from '$lib/components/global/sidebar.svelte';
+</script>
+
+<svelte:head>
+	<title>Beast.</title>
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</svelte:head>
+
+<div class="flex h-screen overflow-hidden divide-x-2 divide-base-300">
+	<!-- Menu latéral -->
+	<Sidebar />
+
+	<!-- Zone de contenu principal -->
+	<div class="flex-1 rounded-xl shadow p-3 overflow-y-auto">
+		{@render children()}
+	</div>
+</div>
