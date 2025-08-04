@@ -11,12 +11,12 @@
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 </svelte:head>
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex min-h-screen">
 	<!-- Menu latéral -->
 	<div class="hidden md:flex"><Sidebar /></div>
 
 	<!-- Zone de contenu principal -->
-	<div class="flex-1 rounded-xl shadow p-3 overflow-y-auto">
+	<div class="flex-1 rounded-xl shadow p-3">
 		{@render children()}
 	</div>
 </div>

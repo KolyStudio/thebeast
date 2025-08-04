@@ -6,7 +6,8 @@
 		Settings,
 		Users,
 		BarChart3,
-		MessageSquare
+		MessageSquare,
+		TestTube
 	} from '@lucide/svelte';
 	import { page } from '$app/stores';
 
@@ -29,6 +30,11 @@
 					label: 'Instagram',
 					href: '/instagram',
 					icon: Instagram
+				},
+				{
+					label: 'Test Scroll',
+					href: '/test-scroll',
+					icon: TestTube
 				}
 			]
 		}

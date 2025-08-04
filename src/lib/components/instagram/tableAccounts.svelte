@@ -12,6 +12,7 @@
 		onToggleSelect: (id: number) => void;
 		onToggleSelectAll: () => void;
 		onStatusChange: (accountId: number, newStatus: string) => Promise<void>;
+		onChangeToggle?: (accountId: number, changeType: string, newValue: boolean) => Promise<void>;
 	}
 
 	let {
@@ -22,7 +23,8 @@
 		onDelete,
 		onToggleSelect,
 		onToggleSelectAll,
-		onStatusChange
+		onStatusChange,
+		onChangeToggle
 	}: Props = $props();
 
 	function capitalizeStatus(status: string | null) {
@@ -86,6 +88,30 @@
 
 	function getChangeColor(changed: boolean | null) {
 		return changed ? 'bg-success/20 text-success/90' : 'bg-error/20 text-error/90';
+	}
+
+	/**
+	 * Fonction pour basculer l'état d'un changement
+	 */
+	async function toggleChange(accountId: number, changeType: string, currentValue: boolean | null) {
+		if (onChangeToggle) {
+			const newValue = !currentValue;
+			await onChangeToggle(accountId, changeType, newValue);
+		}
+	}
+
+	/**
+	 * Fonction pour obtenir le texte d'affichage d'un changement
+	 */
+	function getChangeText(changed: boolean | null) {
+		return changed ? 'Oui' : 'Non';
+	}
+
+	/**
+	 * Fonction pour obtenir l'icône d'un changement
+	 */
+	function getChangeIcon(changed: boolean | null) {
+		return changed ? '✓' : '✗';
 	}
 
 	// Liste des statuts disponibles pour le dropdown
@@ -278,55 +304,85 @@
 					</td>
 					<td class="p-2 h-12">
 						<div class="flex gap-1 justify-center flex-wrap">
-							<div
-								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs {getChangeColor(
+							<button
+								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs transition-all duration-200 hover:scale-105 hover:shadow-sm cursor-pointer {getChangeColor(
 									account.changed_username
 								)}"
+								onclick={() =>
+									toggleChange(account.id, 'changed_username', account.changed_username)}
+								disabled={isLoading}
+								title="Cliquez pour basculer le statut du pseudo"
 							>
+								<span class="font-medium">{getChangeIcon(account.changed_username)}</span>
 								<p>Pseudo</p>
-							</div>
-							<div
-								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs {getChangeColor(
+							</button>
+							<button
+								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs transition-all duration-200 hover:scale-105 hover:shadow-sm cursor-pointer {getChangeColor(
 									account.changed_bio
 								)}"
+								onclick={() => toggleChange(account.id, 'changed_bio', account.changed_bio)}
+								disabled={isLoading}
+								title="Cliquez pour basculer le statut de la bio"
 							>
+								<span class="font-medium">{getChangeIcon(account.changed_bio)}</span>
 								<p>Bio</p>
-							</div>
-							<div
-								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs {getChangeColor(
+							</button>
+							<button
+								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs transition-all duration-200 hover:scale-105 hover:shadow-sm cursor-pointer {getChangeColor(
 									account.changed_photo
 								)}"
+								onclick={() => toggleChange(account.id, 'changed_photo', account.changed_photo)}
+								disabled={isLoading}
+								title="Cliquez pour basculer le statut de la photo"
 							>
+								<span class="font-medium">{getChangeIcon(account.changed_photo)}</span>
 								<p>Photo</p>
-							</div>
-							<div
-								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs {getChangeColor(
+							</button>
+							<button
+								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs transition-all duration-200 hover:scale-105 hover:shadow-sm cursor-pointer {getChangeColor(
 									account.changed_firstname
 								)}"
+								onclick={() =>
+									toggleChange(account.id, 'changed_firstname', account.changed_firstname)}
+								disabled={isLoading}
+								title="Cliquez pour basculer le statut du nom"
 							>
+								<span class="font-medium">{getChangeIcon(account.changed_firstname)}</span>
 								<p>Nom</p>
-							</div>
-							<div
-								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs {getChangeColor(
+							</button>
+							<button
+								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs transition-all duration-200 hover:scale-105 hover:shadow-sm cursor-pointer {getChangeColor(
 									account.changed_url
 								)}"
+								onclick={() => toggleChange(account.id, 'changed_url', account.changed_url)}
+								disabled={isLoading}
+								title="Cliquez pour basculer le statut de l'URL"
 							>
+								<span class="font-medium">{getChangeIcon(account.changed_url)}</span>
 								<p>URL</p>
-							</div>
-							<div
-								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs {getChangeColor(
+							</button>
+							<button
+								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs transition-all duration-200 hover:scale-105 hover:shadow-sm cursor-pointer {getChangeColor(
 									account.changed_statut
 								)}"
+								onclick={() => toggleChange(account.id, 'changed_statut', account.changed_statut)}
+								disabled={isLoading}
+								title="Cliquez pour basculer le statut du statut"
 							>
+								<span class="font-medium">{getChangeIcon(account.changed_statut)}</span>
 								<p>Statut</p>
-							</div>
-							<div
-								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs {getChangeColor(
+							</button>
+							<button
+								class="px-2 py-1 flex items-center gap-1 w-fit rounded text-xs transition-all duration-200 hover:scale-105 hover:shadow-sm cursor-pointer {getChangeColor(
 									account.changed_type
 								)}"
+								onclick={() => toggleChange(account.id, 'changed_type', account.changed_type)}
+								disabled={isLoading}
+								title="Cliquez pour basculer le statut du type"
 							>
+								<span class="font-medium">{getChangeIcon(account.changed_type)}</span>
 								<p>Type</p>
-							</div>
+							</button>
 						</div>
 					</td>
 					<td class="p-2 h-12 {index === accounts.length - 1 ? 'rounded-br-2xl' : ''}">
@@ -356,3 +412,12 @@
 		{/if}
 	</tbody>
 </table>
+
+<style>
+	.status {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		display: inline-block;
+	}
+</style>

@@ -233,6 +233,49 @@ body {
    font-family: 'Inter Variable', sans-serif;
    background-color: #18171b; /* bg-gray-100 */
  }
+
+/* Amélioration du défilement mobile */
+html {
+  /* Utilise la hauteur dynamique du viewport sur mobile */
+  height: 100%;
+  /* Améliore le défilement tactile sur iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Évite le zoom sur les inputs sur iOS */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  /* Permet le défilement naturel */
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Hauteur minimale pour éviter les problèmes de viewport mobile */
+  min-height: 100vh;
+  /* Support pour les nouvelles unités de viewport CSS */
+  min-height: 100dvh;
+  /* Améliore les performances de défilement */
+  scroll-behavior: smooth;
+}
+
+/* Optimisations spécifiques pour mobile */
+@media (max-width: 768px) {
+  /* Améliore le défilement tactile sur tous les éléments scrollables */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Évite les problèmes de défilement avec position fixed sur mobile */
+  .fixed {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  /* Optimise les transitions pour mobile */
+  .transition-all,
+  .transition-colors,
+  .transition-transform {
+    will-change: transform, opacity;
+  }
+}
  
  .logo {
     font-family: 'Saira Semi Condensed', ui-sans-serif, system-ui, sans-serif;

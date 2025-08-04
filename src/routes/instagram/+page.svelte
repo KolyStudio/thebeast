@@ -217,6 +217,15 @@
 	}
 
 	/**
+	 * Fonction pour basculer l'état d'un changement
+	 */
+	async function toggleAccountChange(accountId: number, changeType: string, newValue: boolean) {
+		const updateData: Record<string, boolean> = {};
+		updateData[changeType] = newValue;
+		await instagramAccountsStore.updateAccount(accountId, updateData);
+	}
+
+	/**
 	 * Fonction pour ouvrir le dialog de changement de statut en masse
 	 */
 	function openBulkStatusChange() {
@@ -472,6 +481,7 @@
 		onToggleSelect={toggleAccountSelection}
 		onToggleSelectAll={toggleSelectAll}
 		onStatusChange={changeAccountStatus}
+		onChangeToggle={toggleAccountChange}
 	/>
 </div>
 
