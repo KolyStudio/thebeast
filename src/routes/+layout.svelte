@@ -11,7 +11,7 @@
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 </svelte:head>
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex md:h-screen md:overflow-hidden">
 	<!-- Menu latéral -->
 	<div class="hidden md:flex"><Sidebar /></div>
 
