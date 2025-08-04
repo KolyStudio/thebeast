@@ -189,7 +189,7 @@
 				</div>
 				<span>{updateTime}</span>
 			</button>
-			<div class="h-10 tabs tabs-box">
+			<div class="h-10 tabs tabs-box w-full">
 				<input
 					type="radio"
 					name="my_tabs_1"
