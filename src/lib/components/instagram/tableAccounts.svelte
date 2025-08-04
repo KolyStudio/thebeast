@@ -227,7 +227,7 @@
 							</div>
 							{#if openDropdownId === account.id}
 								<ul
-									class="menu bg-base-100 rounded-box z-[9999] w-52 p-2 shadow border border-base-200 absolute top-full left-1/2 transform -translate-x-1/2 mt-1"
+									class="menu bg-base-100 rounded-box z-[9999] w-52 p-2 shadow absolute top-full left-1/2 transform -translate-x-1/2 mt-1"
 								>
 									{#each availableStatuses as status}
 										<li>

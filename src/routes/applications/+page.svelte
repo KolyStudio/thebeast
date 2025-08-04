@@ -831,7 +831,7 @@
 	});
 </script>
 
-<div class="bg-base-100 border border-base-200 rounded-2xl overflow-visible">
+<div class="bg-base-100 rounded-2xl overflow-visible">
 	<div class="flex justify-between items-center">
 		<div class="h-10 tabs tabs-box m-2 w-fit">
 			<!-- Tabs pour les plateformes : Bumble - Badoo - Tinder -->
@@ -987,7 +987,7 @@
 									</div>
 									{#if openDropdownId === item.compte.id}
 										<ul
-											class="menu bg-base-100 rounded-box z-[9999] w-44 p-2 shadow border border-base-200 absolute top-full left-1/2 transform -translate-x-1/2 mt-1"
+											class="menu bg-base-100 rounded-box z-[9999] w-44 p-2 shadow absolute top-full left-1/2 transform -translate-x-1/2 mt-1"
 										>
 											{#each availablestatutes as statut}
 												<li>

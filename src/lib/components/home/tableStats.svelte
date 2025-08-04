@@ -193,7 +193,7 @@
 	});
 </script>
 
-<div class="overflow-x-auto my-3 text-sm bg-base-100 border border-base-200 rounded-lg w-full">
+<div class="overflow-x-auto my-3 text-sm bg-base-100 rounded-lg w-full">
 	<!-- Sélecteur de dates -->
 	<div class="flex items-center gap-2 cursor-pointer">
 		<select

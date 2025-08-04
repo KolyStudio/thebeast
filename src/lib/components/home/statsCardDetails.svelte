@@ -38,7 +38,7 @@
 		if (value > 0) {
 			return `${baseClass} bg-success/10 text-success`;
 		}
-		return `${baseClass} bg-base-200 text-neutral-content`;
+		return `${baseClass} bg-base-200 `;
 	}
 
 	// Helper function to get value class with conditional styling
@@ -47,11 +47,11 @@
 		if (value > 0) {
 			return `${baseClass} text-success`;
 		}
-		return `${baseClass} text-text-neutral-content`;
+		return `${baseClass} `;
 	}
 
 	// Classes réutilisables pour les éléments communs
-	const statLabelClass = 'text-xs font-bold text-neutral-content';
+	const statLabelClass = 'text-xs font-bold ';
 </script>
 
 <!-- Section principale -->
@@ -64,7 +64,7 @@
 				class="text-3xl font-extrabold {stats[getPeriodKey()].revenue > 0
 					? 'text-success'
 					: stats[getPeriodKey()].revenue === 0
-						? 'disabled text-[#e4e2e2]'
+						? 'disabled '
 						: ''}"
 			>
 				{stats[getPeriodKey()].revenue.toFixed(2)}<span class="text-xs px-1 align-super">€</span>

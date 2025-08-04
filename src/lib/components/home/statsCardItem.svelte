@@ -18,9 +18,7 @@
 	const gradientId = `progressGradient-${Math.random().toString(36).substring(2, 11)}`;
 </script>
 
-<div
-	class="w-full p-4 bg-base-100 border border-base-200 rounded-xl flex flex-col items-center gap-1"
->
+<div class="w-full p-4 bg-base-100 rounded-xl flex flex-col items-center gap-1">
 	<!-- Progress bar circulaire avec dégradé d'opacité -->
 	<div class="relative w-24 h-24">
 		<svg class="w-full h-full" viewBox="0 0 100 100">

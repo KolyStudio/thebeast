@@ -58,9 +58,7 @@
 	onMount(fetchStatsData);
 </script>
 
-<section
-	class="hidden md:block md:w-1/2 mt-3 md:mt-0 bg-base-100 border border-base-300 rounded-xl"
->
+<section class="hidden md:block md:w-1/2 mt-3 md:mt-0 bg-base-100 rounded-xl">
 	<!-- Refresh + Tabs -->
 
 	<div class="flex divide-x divide-base-100 rounded-lg bg-base-200 md:w-[70%] m-1.5">

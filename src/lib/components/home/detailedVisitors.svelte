@@ -162,8 +162,8 @@
 					{
 						label: 'Visiteurs',
 						data: [...visitors],
-						backgroundColor: '#457ee2',
-						borderColor: '#457ee2',
+						backgroundColor: '#0a78fe',
+						borderColor: '#0a78fe',
 						borderWidth: 0,
 						borderRadius: 4,
 						borderSkipped: false
@@ -424,7 +424,7 @@
 
 <div class="flex flex-col gap-3">
 	<!-- Blue Chart Section -->
-	<div class="w-full h-full bg-base-100 border border-base-200 rounded-xl p-1.5">
+	<div class="w-full h-full bg-base-100 rounded-xl p-1.5">
 		<div class="flex divide-x divide-base-100 rounded-lg bg-base-200 w-full">
 			<!-- Visiteurs actuels -->
 			<header class="flex-1 py-1">
@@ -500,7 +500,7 @@
 	</div>
 
 	<!-- Top Pages Section -->
-	<div class="w-full bg-base-100 border border-base-200 rounded-xl p-1.5">
+	<div class="w-full bg-base-100 rounded-xl p-1.5">
 		<div class="mb-2">
 			<h3 class="text-sm font-medium text-neutral-content px-2">Pages les plus visitées</h3>
 		</div>
@@ -515,14 +515,14 @@
 					>
 						{formatPagePath(page.pathname)}
 					</div>
-					<div class="font-bold text-[#3B81F6]">{page.visits || 0}</div>
+					<div class="font-bold text-[#0a78fe]">{page.visits || 0}</div>
 				</div>
 			{/each}
 		</div>
 	</div>
 
 	<!-- Top Locations Section -->
-	<div class="w-full bg-base-100 border border-base-200 rounded-xl p-1.5">
+	<div class="w-full bg-base-100 rounded-xl p-1.5">
 		<div class="mb-2">
 			<h3 class="text-sm font-medium text-neutral-content px-2">Pays les plus actifs</h3>
 		</div>

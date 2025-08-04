@@ -176,7 +176,7 @@
 </script>
 
 <section class="flex flex-col gap-3 md:w-1/2">
-	<section class="w-full p-1.5 bg-base-100 border border-base-300 rounded-xl">
+	<section class="w-full p-1.5 bg-base-100 rounded-xl">
 		<!-- Refresh + Tabs -->
 		<header class="flex items-start justify-between">
 			<button
@@ -223,7 +223,7 @@
 				title="Essais"
 				value={stats.month.transactions[0].count}
 				max={MAX_ESSAIS}
-				color="#4b80de"
+				color="#0a78fe"
 			/>
 			<!-- <StatsCardItem
 				title="Chiffre d'affaire"

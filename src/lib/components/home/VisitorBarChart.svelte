@@ -37,26 +37,10 @@
 	// Effet pour mettre à jour le graphique quand les données changent
 	$effect(() => {
 		if (data.length > 0 && !isLoading && browser && chartElement) {
-			if (!chart) {
-				createChart();
-			} else {
-				updateChart();
-			}
+			// Toujours recréer le graphique pour s'assurer que les nouvelles couleurs sont appliquées
+			createChart();
 		}
 	});
-
-	// Mise à jour du graphique sans réinitialisation
-	function updateChart() {
-		if (!chart || !data?.length) return;
-
-		// Créer des copies non-réactives pour éviter les conflits Svelte 5
-		const labels = data.map((item: any) => formatDateTime(item.t));
-		const visits = data.map((item: any) => item.visits || 0);
-
-		chart.data.labels = [...labels];
-		chart.data.datasets[0].data = [...visits];
-		chart.update('none'); // Mode 'none' pour éviter les animations
-	}
 
 	// Création initiale du graphique
 	function createChart() {
@@ -82,7 +66,9 @@
 					{
 						label: 'Visites',
 						data: [...visits], // Utiliser la variable visits
-						backgroundColor: '#3B81F6',
+						backgroundColor: '#0a78fe',
+						borderColor: '#0a78fe',
+						borderWidth: 10,
 						borderRadius: 4,
 						borderSkipped: false
 					}

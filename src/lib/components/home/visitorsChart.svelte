@@ -135,7 +135,7 @@
 					{
 						label: 'Visiteurs',
 						data: [...data],
-						borderColor: '#457ee2',
+						borderColor: '#0a78fe',
 						backgroundColor: (context: any) => {
 							const chart = context.chart;
 							const { ctx, chartArea } = chart;
@@ -152,7 +152,7 @@
 						tension: 0, // Ligne droite (équivalent à curve: 'straight')
 						pointRadius: 0, // Augmenter la taille des points pour faciliter le hover
 						pointHoverRadius: 3,
-						pointBackgroundColor: '#457ee2',
+						pointBackgroundColor: '#0a78fe',
 						pointBorderColor: 'transparent',
 						pointHoverBackgroundColor: '#457ee2',
 						pointHoverBorderColor: 'transparent',
@@ -361,7 +361,7 @@
 	}
 </script>
 
-<div class="w-full h-full bg-base-100 border border-base-200 rounded-xl p-1.5">
+<div class="w-full h-full bg-base-100 rounded-xl p-1.5">
 	<div class="flex divide-x divide-base-100 rounded-lg bg-base-200 w-[50%]">
 		<header class="flex-1 py-1">
 			<div class="w-full">

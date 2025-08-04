@@ -254,7 +254,7 @@
 				{/if}
 
 				<!-- Informations sur le coût et le solde -->
-				<div class="bg-base-300 border border-base-200 rounded-lg p-4">
+				<div class="bg-base-300 rounded-lg p-4">
 					<div class="flex items-center gap-2 mb-2">
 						<DollarSign class="h-4 w-4 " />
 						<span class="text-sm font-medium">Informations financières</span>
@@ -278,7 +278,7 @@
 				{#if validAccounts.length > 0}
 					<div class="space-y-2">
 						<span class="text-sm font-medium">Comptes qui recevront des followers :</span>
-						<div class="max-h-32 overflow-y-auto bg-base-300 border border-base-200 rounded-lg p-3">
+						<div class="max-h-32 overflow-y-auto bg-base-300 rounded-lg p-3">
 							{#each validAccounts as account}
 								<div class="flex items-center gap-2 text-sm py-1">
 									<CheckCircle class="h-3 w-3 text-green-500" />

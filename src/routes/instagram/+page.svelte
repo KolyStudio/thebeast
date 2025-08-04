@@ -314,7 +314,7 @@
 	}
 </script>
 
-<div class="bg-base-100 border border-base-200 rounded-2xl overflow-visible">
+<div class="bg-base-100 rounded-2xl overflow-visible">
 	<div class="flex justify-between items-center">
 		<div class="h-10 tabs tabs-box m-2 w-fit">
 			<!-- Tabs dans l'ordre demandé : Actifs - En Cours - Disponibles - Utilisés - Nouveaux - Erreurs - Bannis -->
