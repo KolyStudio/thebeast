@@ -6,8 +6,9 @@
 	import DetailedVisitors from '$lib/components/home/detailedVisitors.svelte';
 </script>
 
-<section class="flex gap-3">
+<section class="md:flex gap-3">
 	<Encours />
+
 	<DetailedStats />
 </section>
 
@@ -15,11 +16,11 @@
 	<TableStats />
 </section>
 
-<section class="flex gap-3">
-	<div class="w-1/2 flex gap-3">
+<section class="flex flex-col md:flex-row gap-3">
+	<div class="md:w-1/2 w-full flex gap-3">
 		<VisitorsChart />
 	</div>
-	<div class="w-1/2 grid gap-3">
+	<div class="md:w-1/2 w-full grid gap-3">
 		<div>
 			<DetailedVisitors />
 		</div>

@@ -13,7 +13,7 @@
 
 <div class="flex h-screen overflow-hidden divide-x-2 divide-base-300">
 	<!-- Menu latéral -->
-	<Sidebar />
+	<div class="hidden md:flex"><Sidebar /></div>
 
 	<!-- Zone de contenu principal -->
 	<div class="flex-1 rounded-xl shadow p-3 overflow-y-auto">

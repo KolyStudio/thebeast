@@ -58,10 +58,12 @@
 	onMount(fetchStatsData);
 </script>
 
-<section class="w-1/2 bg-base-100 border border-base-300 rounded-xl">
+<section
+	class="hidden md:block md:w-1/2 mt-3 md:mt-0 bg-base-100 border border-base-300 rounded-xl"
+>
 	<!-- Refresh + Tabs -->
 
-	<div class="flex divide-x divide-base-100 rounded-lg bg-base-200 w-[70%] m-1.5">
+	<div class="flex divide-x divide-base-100 rounded-lg bg-base-200 md:w-[70%] m-1.5">
 		<header class="flex-1 py-1">
 			<div class="w-full">
 				<div class="flex flex-col">
