@@ -8,7 +8,8 @@
 		Trash,
 		Plus,
 		X,
-		Info
+		Info,
+		Search
 	} from 'lucide-svelte';
 	import DeleteConfirmationDialog from '$lib/components/ui/delete-confirmation-dialog.svelte';
 	import AddApplicationDialog, {
@@ -16,6 +17,7 @@
 	} from '$lib/components/applications/addAccount.svelte';
 	import * as Select from '$lib/components/ui/select';
 	import * as Popover from '$lib/components/ui/popover';
+	import { Input } from '$lib/components/ui/input';
 	import { supabase } from '$lib/supabaseClient';
 	import { instagramAccountsStore, type InstagramAccount } from '$lib/api/instagramAccounts.svelte';
 	import { onMount } from 'svelte';
@@ -74,6 +76,7 @@
 	// État pour les sélections et filtres
 	let selectedAccountIds = $state(new Set());
 	let currentFilter = $state('bumble');
+	let searchTerm = $state('');
 	let isLoading = $state(false);
 	let isAddingAccount = $state(false);
 	let isEditingAccount = $state(false);
@@ -86,6 +89,7 @@
 	// État pour la confirmation de suppression
 	let showDeleteConfirmation = $state(false);
 	let compteToDelete = $state<number | null>(null);
+	let showBulkDeleteConfirmation = $state(false);
 	let showAddCompteDialog = $state(false);
 	let showEditCompteDialog = $state(false);
 	let compteToEdit = $state<any | null>(null);
@@ -148,7 +152,8 @@
 				city: selectedVille,
 				application: data.id || `Compte ${selectedVille}`,
 				instagram: data.instagram || '',
-				note: data.note || ''
+				note: data.note || '',
+				created_at: data.createdAt
 			};
 
 			const { data: insertedData, error } = await supabase
@@ -206,10 +211,10 @@
 					return;
 				}
 
-				// Si un compte Instagram était lié, changer son statut à "disponible"
+				// Si un compte Instagram était lié, changer son statut à "utilisé"
 				if (compteData?.instagram_account_id) {
 					await instagramAccountsStore.updateAccount(compteData.instagram_account_id, {
-						statut: 'disponible'
+						statut: 'utilisé'
 					});
 				}
 
@@ -244,6 +249,65 @@
 		}
 		showDeleteConfirmation = false;
 		compteToDelete = null;
+	}
+
+	/**
+	 * Fonction pour supprimer plusieurs comptes sélectionnés
+	 */
+	async function handleBulkDeleteConfirm() {
+		if (selectedAccountIds.size === 0) return;
+
+		isDeletingAccount = true;
+		try {
+			const accountsToDelete = Array.from(selectedAccountIds);
+
+			// Récupérer les informations des comptes avant suppression
+			const { data: comptesData, error: fetchError } = await supabase
+				.from('apps_accounts')
+				.select('id, instagram_account_id')
+				.in('id', accountsToDelete);
+
+			if (fetchError) {
+				console.error('Erreur lors de la récupération des comptes:', fetchError);
+				return;
+			}
+
+			// Marquer les comptes Instagram liés comme "utilisé"
+			for (const compte of comptesData || []) {
+				if (compte.instagram_account_id) {
+					await instagramAccountsStore.updateAccount(compte.instagram_account_id, {
+						statut: 'utilisé'
+					});
+				}
+			}
+
+			// Supprimer tous les comptes sélectionnés
+			const { error } = await supabase.from('apps_accounts').delete().in('id', accountsToDelete);
+
+			if (error) {
+				console.error('Erreur lors de la suppression en lot:', error);
+				return;
+			}
+
+			// Supprimer les comptes de la liste locale
+			comptes = comptes.filter((compte) => !selectedAccountIds.has(compte.id));
+
+			// Vider la sélection
+			selectedAccountIds.clear();
+			selectedAccountIds = new Set(selectedAccountIds);
+
+			// Mettre à jour la liste des comptes Instagram disponibles
+			availableInstagramAccounts = instagramAccountsStore.accounts.filter(
+				(account) => account.statut === 'disponible'
+			);
+
+			console.log('Comptes supprimés en lot:', accountsToDelete);
+		} catch (err) {
+			console.error('Erreur lors de la suppression en lot:', err);
+		} finally {
+			isDeletingAccount = false;
+		}
+		showBulkDeleteConfirmation = false;
 	}
 
 	/**
@@ -508,7 +572,28 @@
 			})
 			.filter((item) => {
 				// Filtrer selon la plateforme sélectionnée
-				return !item.compte || item.compte.platform.toLowerCase() === currentFilter;
+				if (item.compte && item.compte.platform.toLowerCase() !== currentFilter) {
+					return false;
+				}
+
+				// Filtrer selon le terme de recherche
+				if (searchTerm.trim()) {
+					const searchLower = searchTerm.toLowerCase().trim();
+
+					// Rechercher dans la ville
+					const villeMatch = item.ville.toLowerCase().includes(searchLower);
+
+					// Rechercher dans l'ID de l'application si le compte existe
+					const idMatch =
+						item.compte &&
+						(item.compte.application?.toLowerCase().includes(searchLower) ||
+							item.compte.idd?.toLowerCase().includes(searchLower));
+
+					// Afficher l'élément s'il y a une correspondance dans la ville ou l'ID
+					return villeMatch || idMatch;
+				}
+
+				return true;
 			})
 			.sort((a, b) => {
 				// Trier pour mettre les comptes existants en haut
@@ -682,6 +767,22 @@
 	}
 
 	/**
+	 * Fonction pour confirmer la suppression en lot
+	 */
+	function confirmBulkDelete() {
+		if (selectedAccountIds.size > 0) {
+			showBulkDeleteConfirmation = true;
+		}
+	}
+
+	/**
+	 * Fonction pour annuler la suppression en lot
+	 */
+	function handleBulkDeleteCancel() {
+		showBulkDeleteConfirmation = false;
+	}
+
+	/**
 	 * Fonction pour supprimer un compte (ancienne version)
 	 */
 	function deleteCompte(id: number) {
@@ -762,6 +863,35 @@
 			/>
 		</div>
 		<div class="gap-2 flex items-center">
+			{#if selectedAccountIds.size > 0}
+				<button
+					onclick={confirmBulkDelete}
+					class="bg-error hover:bg-error/80 text-error-content cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition-colors flex items-center"
+					disabled={isDeletingAccount}
+					title="Supprimer les comptes sélectionnés"
+				>
+					{#if isDeletingAccount}
+						<Loader2 class="w-4 h-4 animate-spin inline mr-2" />
+					{:else}
+						<Trash class="w-4 h-4 inline mr-2" />
+					{/if}
+					({selectedAccountIds.size})
+				</button>
+			{/if}
+
+			<!-- Champ de recherche -->
+			<div class="relative">
+				<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+					<Search class="h-4 w-4 text-neutral-content/50" />
+				</div>
+				<Input
+					type="text"
+					placeholder="Rechercher par ID ou ville..."
+					bind:value={searchTerm}
+					class="pl-10 w-64 h-8 text-sm bg-base-200 border-base-300 focus:border-primary"
+				/>
+			</div>
+
 			<button
 				onclick={refreshComptes}
 				class="bg-base-200 hover:bg-base-300 cursor-pointer rounded-lg mr-2"
@@ -1030,6 +1160,18 @@
 	isLoading={isDeletingAccount}
 	onConfirm={handleDeleteConfirm}
 	onCancel={handleDeleteCancel}
+/>
+
+<!-- Dialog de confirmation de suppression en lot -->
+<DeleteConfirmationDialog
+	bind:open={showBulkDeleteConfirmation}
+	title="Supprimer les comptes sélectionnés"
+	description="Êtes-vous sûr de vouloir supprimer les {selectedAccountIds.size} comptes sélectionnés ? Cette action est irréversible."
+	confirmText="Supprimer tout"
+	cancelText="Annuler"
+	isLoading={isDeletingAccount}
+	onConfirm={handleBulkDeleteConfirm}
+	onCancel={handleBulkDeleteCancel}
 />
 
 <!-- Dialog d'ajout de compte -->
