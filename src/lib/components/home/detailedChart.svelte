@@ -13,7 +13,7 @@
 
 	// Computed values
 	let revenueValue = $state(0);
-	let expensesValue = $state(1200); // Valeur fixe pour les dépenses pour l'instant
+	let expensesValue = $state(0); // Valeur fixe pour les dépenses pour l'instant
 
 	// Calculate revenue when statsStore.month changes
 	$effect(() => {
