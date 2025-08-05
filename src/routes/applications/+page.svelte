@@ -831,7 +831,7 @@
 	});
 </script>
 
-<div class="bg-base-100 rounded-2xl overflow-visible">
+<div class="bg-base-100 rounded-2xl">
 	<div class="flex justify-between items-center">
 		<div class="h-10 tabs tabs-box m-2 w-fit">
 			<!-- Tabs pour les plateformes : Bumble - Badoo - Tinder -->
@@ -907,7 +907,7 @@
 	</div>
 
 	<!-- Tableau des comptes par ville -->
-	<table class="w-full border-collapse overflow-visible text-center text-sm table-fixed relative">
+	<table class="w-full border-collapse text-center text-sm table-fixed">
 		<thead>
 			<tr class="bg-base-200 text-neutral-content">
 				<th class="p-2 text-left font-semibold w-12">
@@ -927,7 +927,7 @@
 				<th class="p-2 text-right font-semibold w-24">Actions</th>
 			</tr>
 		</thead>
-		<tbody class="relative">
+		<tbody>
 			{#if isLoading}
 				<tr>
 					<td colspan="8" class="p-8 text-center text-neutral-content/60">
@@ -958,8 +958,8 @@
 									/>
 								</div>
 							</td>
-							<td class="p-2 h-12 relative overflow-visible">
-								<div class="relative dropdown-container overflow-visible">
+							<td class="p-2 h-12 relative">
+								<div class="relative dropdown-container">
 									<div
 										class="px-3 py-1 flex items-center gap-2 w-fit rounded m-auto cursor-pointer hover:opacity-80 transition-opacity text-xs {getstatutColor(
 											item.compte.statut
@@ -987,7 +987,7 @@
 									</div>
 									{#if openDropdownId === item.compte.id}
 										<ul
-											class="menu bg-base-100 rounded-box z-[9999] w-44 p-2 shadow-lg border border-base-300 absolute top-full left-1/2 transform -translate-x-1/2 mt-1"
+											class="menu bg-base-100 rounded-box z-[9999] w-44 p-2 shadow absolute top-full left-1/2 transform -translate-x-1/2 mt-1"
 										>
 											{#each availablestatutes as statut}
 												<li>
@@ -1206,7 +1206,6 @@
 
 	table td,
 	table th {
-		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
@@ -1214,23 +1213,6 @@
 	/* Exception pour la colonne Instagram qui peut avoir du contenu flexible */
 	table td:nth-child(6) {
 		white-space: normal;
-	}
-
-	/* Exception pour la colonne Statut pour permettre au dropdown de dépasser */
-	table td:nth-child(3) {
-		overflow: visible;
-	}
-
-	/* Styles pour le dropdown container */
-	.dropdown-container {
-		position: relative;
-		z-index: 10;
-	}
-
-	/* Assurer que le dropdown est au-dessus de tout */
-	.dropdown-container ul {
-		z-index: 9999 !important;
-		position: absolute !important;
 	}
 
 	.statut {
