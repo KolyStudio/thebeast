@@ -6,7 +6,8 @@
 		Settings,
 		Users,
 		BarChart3,
-		MessageSquare
+		MessageSquare,
+		Rocket
 	} from '@lucide/svelte';
 	import { page } from '$app/stores';
 
@@ -19,6 +20,11 @@
 					label: 'Tableau de bord',
 					href: '/',
 					icon: LayoutDashboard
+				},
+				{
+					label: 'Launchers',
+					href: '/launchers',
+					icon: Rocket
 				},
 				{
 					label: 'Applications',
@@ -48,7 +54,7 @@
 	</div>
 
 	{#each navCategories as category}
-		<div class="pt-4 pb-2 text-xs text-neutral-content font-medium first:pt-0">
+		<div class="pt-4 pb-2 text-xs text-neutral-content/80 font-medium first:pt-0">
 			{category.category}
 		</div>
 		<nav class="flex flex-col space-y-1 font-medium text-[15px]">
@@ -58,7 +64,7 @@
 					class="flex space-x-2 items-center rounded-lg py-1.5 px-4 transition-colors duration-200
                        {isActive(item.href)
 						? 'bg-[#252329] text-white'
-						: 'text-neutral-content hover:bg-[#202020] hover:text-white'}"
+						: 'text-neutral-content/50 hover:bg-[#202020] hover:text-white'}"
 				>
 					<svelte:component this={item.icon} class="w-4.5" />
 					<div>{item.label}</div>

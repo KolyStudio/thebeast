@@ -907,7 +907,7 @@
 	</div>
 
 	<!-- Tableau des comptes par ville -->
-	<table class="w-full border-collapse overflow-visible text-center text-sm">
+	<table class="w-full border-collapse overflow-visible text-center text-sm table-fixed">
 		<thead>
 			<tr class="bg-base-200 text-neutral-content">
 				<th class="p-2 text-left font-semibold w-12">
@@ -918,12 +918,12 @@
 						onchange={toggleSelectAll}
 					/>
 				</th>
-				<th class="p-2 first:text-left font-semibold text-center">Plateforme</th>
-				<th class="p-2 first:text-left font-semibold text-center">Statut</th>
-				<th class="p-2 first:text-left font-semibold text-center">ID</th>
-				<th class="p-2 first:text-left font-semibold text-center">Ville</th>
-				<th class="p-2 first:text-left font-semibold text-center">Instagram</th>
-				<th class="p-2 first:text-left font-semibold text-center">Création</th>
+				<th class="p-2 first:text-left font-semibold text-center w-20">Plateforme</th>
+				<th class="p-2 first:text-left font-semibold text-center w-24">Statut</th>
+				<th class="p-2 first:text-left font-semibold text-center w-32">ID</th>
+				<th class="p-2 first:text-left font-semibold text-center w-28">Ville</th>
+				<th class="p-2 first:text-left font-semibold text-center w-40">Instagram</th>
+				<th class="p-2 first:text-left font-semibold text-center w-20">Création</th>
 				<th class="p-2 text-right font-semibold w-24">Actions</th>
 			</tr>
 		</thead>
@@ -1017,53 +1017,55 @@
 							<td class="p-2 h-12 font-medium">
 								{item.ville}
 							</td>
-							<td class="p-2 h-12 text-center flex justify-center">
-								{#if item.compte.instagram_account_id}
-									<!-- Compte Instagram déjà assigné -->
-									<div class="flex items-center gap-2 justify-center">
-										<span class="text-sm">
-											{item.compte.instagram || `Compte ${item.compte.instagram_account_id}`}
-										</span>
-										<button
-											onclick={() =>
-												unlinkInstagramAccount(item.compte.id, item.compte.instagram_account_id)}
-											class="btn btn-xs btn-ghost hover:bg-base-200"
-											disabled={isLoadingInstagram}
-											title="Libérer le compte Instagram"
-										>
-											{#if isLoadingInstagram}
-												<Loader2 class="w-3 h-3 animate-spin" />
-											{:else}
-												<X class="w-3 h-3" />
-											{/if}
-										</button>
-									</div>
-								{:else}
-									<!-- Sélecteur de compte Instagram disponible -->
-									<Select.Root
-										type="single"
-										disabled={isLoadingInstagram || availableInstagramAccounts.length === 0}
-									>
-										<Select.Trigger class="max-w-60 h-7 text-xs ">
-											<span class="text-xs">
-												{availableInstagramAccounts.length === 0
-													? 'Aucun compte'
-													: 'Sélectionner un compte'}
+							<td class="p-2 h-12 text-center">
+								<div class="w-full flex justify-center items-center">
+									{#if item.compte.instagram_account_id}
+										<!-- Compte Instagram déjà assigné -->
+										<div class="flex items-center gap-1 justify-center max-w-full">
+											<span
+												class="text-sm truncate max-w-24"
+												title={item.compte.instagram ||
+													`Compte ${item.compte.instagram_account_id}`}
+											>
+												{item.compte.instagram || `Compte ${item.compte.instagram_account_id}`}
 											</span>
-										</Select.Trigger>
-										<Select.Content>
-											{#each availableInstagramAccounts as account}
-												<Select.Item
-													value={account.id.toString()}
-													label={account.username || `Compte ${account.id}`}
-													onclick={() => linkInstagramAccount(item.compte.id, account.id)}
-												>
-													{account.username || `Compte ${account.id}`}
-												</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
-								{/if}
+											<button
+												onclick={() =>
+													unlinkInstagramAccount(item.compte.id, item.compte.instagram_account_id)}
+												class="btn btn-xs btn-ghost hover:bg-base-200 flex-shrink-0"
+												disabled={isLoadingInstagram}
+												title="Libérer le compte Instagram"
+											>
+												{#if isLoadingInstagram}
+													<Loader2 class="w-3 h-3 animate-spin" />
+												{:else}
+													<X class="w-3 h-3" />
+												{/if}
+											</button>
+										</div>
+									{:else}
+										<!-- Sélecteur de compte Instagram disponible -->
+										<Select.Root
+											type="single"
+											disabled={isLoadingInstagram || availableInstagramAccounts.length === 0}
+										>
+											<Select.Trigger class="w-36 h-7 text-xs">
+												<span class="text-xs truncate"> Sélectionner </span>
+											</Select.Trigger>
+											<Select.Content>
+												{#each availableInstagramAccounts as account}
+													<Select.Item
+														value={account.id.toString()}
+														label={account.username || `Compte ${account.id}`}
+														onclick={() => linkInstagramAccount(item.compte.id, account.id)}
+													>
+														{account.username || `Compte ${account.id}`}
+													</Select.Item>
+												{/each}
+											</Select.Content>
+										</Select.Root>
+									{/if}
+								</div>
 							</td>
 							<td class="p-2 h-12">
 								<span class="text-sm">{formatCreationDate(item.compte.createdAt)}</span>
@@ -1196,6 +1198,24 @@
 />
 
 <style>
+	/* Styles pour le tableau à largeur fixe */
+	table {
+		table-layout: fixed;
+		width: 100%;
+	}
+
+	table td,
+	table th {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	/* Exception pour la colonne Instagram qui peut avoir du contenu flexible */
+	table td:nth-child(6) {
+		white-space: normal;
+	}
+
 	.statut {
 		width: 8px;
 		height: 8px;
