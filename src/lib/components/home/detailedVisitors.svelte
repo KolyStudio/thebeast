@@ -162,8 +162,8 @@
 					{
 						label: 'Visiteurs',
 						data: [...visitors],
-						backgroundColor: '#0a78fe',
-						borderColor: '#0a78fe',
+						backgroundColor: '#6aa2ff',
+						borderColor: '#6aa2ff',
 						borderWidth: 0,
 						borderRadius: 4,
 						borderSkipped: false
@@ -515,7 +515,7 @@
 					>
 						{formatPagePath(page.pathname)}
 					</div>
-					<div class="font-bold text-[#0a78fe]">{page.visits || 0}</div>
+					<div class="font-bold text-info">{page.visits || 0}</div>
 				</div>
 			{/each}
 		</div>

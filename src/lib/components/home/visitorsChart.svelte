@@ -135,7 +135,7 @@
 					{
 						label: 'Visiteurs',
 						data: [...data],
-						borderColor: '#0a78fe',
+						borderColor: '#6aa2ff',
 						backgroundColor: (context: any) => {
 							const chart = context.chart;
 							const { ctx, chartArea } = chart;

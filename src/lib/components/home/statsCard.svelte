@@ -223,7 +223,7 @@
 				title="Essais"
 				value={stats.month.transactions[0].count}
 				max={MAX_ESSAIS}
-				color="#0a78fe"
+				color="#69a1fe"
 			/>
 			<!-- <StatsCardItem
 				title="Chiffre d'affaire"
@@ -235,7 +235,7 @@
 				title="Inscrits"
 				value={stats.month.signups}
 				max={MAX_SIGNUPS}
-				color="#c965c9"
+				color="#fbce5d"
 			/>
 		</div>
 	</section>

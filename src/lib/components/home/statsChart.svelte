@@ -133,8 +133,8 @@
 						label: 'Ventes',
 						type: 'bar' as const,
 						data: ventesData,
-						backgroundColor: '#49f264', // Couleur verte pour valeurs positives selon préférences
-						borderColor: '#49f264',
+						backgroundColor: '#5dbb88', // Couleur verte pour valeurs positives selon préférences
+						borderColor: '#5dbb88',
 						borderWidth: 0,
 						borderRadius: 4,
 						borderSkipped: false,

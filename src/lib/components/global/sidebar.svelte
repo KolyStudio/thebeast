@@ -45,12 +45,12 @@
 	}
 </script>
 
-<div class="px-4 bg-[#1c1b1f]">
+<div class="px-4">
 	<div class="py-2 text-white w-54">
-		<div class="flex items-center w-full my-4 space-x-2">
+		<!-- <div class="flex items-center w-full my-4 space-x-2">
 			<img alt="Logo Beast" src="logo3.webp" class="w-9" />
 			<h1 class="text-3xl font-bold tracking-wider logo">beast.</h1>
-		</div>
+		</div> -->
 	</div>
 
 	{#each navCategories as category}
@@ -63,8 +63,8 @@
 					href={item.href}
 					class="flex space-x-2 items-center rounded-lg py-1.5 px-4 transition-colors duration-200
                        {isActive(item.href)
-						? 'bg-[#252329] text-white'
-						: 'text-neutral-content/50 hover:bg-[#202020] hover:text-white'}"
+						? 'bg-[#2e2e2e] text-white'
+						: 'text-[#afafaf] hover:bg-[#2e2e2e] hover:text-[#cfcfcf]'}"
 				>
 					<svelte:component this={item.icon} class="w-4.5" />
 					<div>{item.label}</div>

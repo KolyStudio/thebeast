@@ -31,12 +31,12 @@
 			</defs>
 
 			<!-- Cercle de fond -->
-			<circle stroke="#2c2b31" stroke-width="12" fill="transparent" r="40" cx="50" cy="50" />
+			<circle stroke="#2c2b31" stroke-width="5" fill="transparent" r="40" cx="50" cy="50" />
 
 			<!-- Cercle de progression avec dégradé -->
 			<circle
 				stroke="url(#{gradientId})"
-				stroke-width="12"
+				stroke-width="5"
 				stroke-dasharray={circumference}
 				stroke-dashoffset={strokeDashoffset}
 				stroke-linecap="round"
