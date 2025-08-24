@@ -185,10 +185,10 @@
 		};
 		formData = {
 			username: '',
-			bio: 'Infirmière 👩🏻‍⚕️💉\nViens découvrir mon profil secret 🌶👇🏻',
+			bio: 'en train de chiner ou de faire des bêtises\n⊹.✮l2 staps✮₊⋆',
 			photo: '',
-			firstname: 'Pauline 💕',
-			url: 'https://my-secret.net/pauline',
+			firstname: 'Marine 💕',
+			url: 'https://my-secret.net/marine',
 			statut: 'private',
 			account_type: 'personal'
 		};

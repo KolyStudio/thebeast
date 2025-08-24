@@ -13,6 +13,7 @@
 		onToggleSelectAll: () => void;
 		onStatusChange: (accountId: number, newStatus: string) => Promise<void>;
 		onChangeToggle?: (accountId: number, changeType: string, newValue: boolean) => Promise<void>;
+		onWarmupPhaseChange: (accountId: number, warmupPhase: number | null) => Promise<void>;
 	}
 
 	let {
@@ -24,7 +25,8 @@
 		onToggleSelect,
 		onToggleSelectAll,
 		onStatusChange,
-		onChangeToggle
+		onChangeToggle,
+		onWarmupPhaseChange
 	}: Props = $props();
 
 	function capitalizeStatus(status: string | null) {
@@ -54,6 +56,8 @@
 			case 'verification':
 			case 'warming':
 				return 'bg-error/30 text-error/90';
+			case 'warmup':
+				return 'bg-yellow-500/20 text-yellow-500';
 			default:
 				return 'bg-gray/20 text-gray/90';
 		}
@@ -81,6 +85,8 @@
 			case 'verification':
 			case 'warming':
 				return 'bg-error';
+			case 'warmup':
+				return 'bg-yellow-500';
 			default:
 				return 'bg-gray-400';
 		}
@@ -122,7 +128,8 @@
 		'utilisé',
 		'nouveau',
 		'erreur',
-		'banni'
+		'banni',
+		'warmup'
 	];
 
 	/**
@@ -130,6 +137,13 @@
 	 */
 	async function handleStatusChange(accountId: number, newStatus: string) {
 		await onStatusChange(accountId, newStatus);
+	}
+
+	/**
+	 * Fonction pour gérer le changement de phase de warmup
+	 */
+	async function handleWarmupPhaseChange(accountId: number, warmupPhase: number | null) {
+		await onWarmupPhaseChange(accountId, warmupPhase);
 	}
 
 	// État pour contrôler l'ouverture des dropdowns
@@ -193,7 +207,7 @@
 			<th class="p-2 first:text-left font-semibold text-center">Statut</th>
 			<th class="p-2 first:text-left font-semibold text-center">Compte</th>
 			<th class="p-2 first:text-left font-semibold text-center">Pseudo changé</th>
-			<th class="p-2 first:text-left font-semibold text-center">Nom de l'agent</th>
+			<th class="p-2 first:text-left font-semibold text-center">Warmup</th>
 			<th class="p-2 first:text-left font-semibold text-center">Changements</th>
 			<th class="p-2 first:text-left font-semibold text-center">Actions</th>
 		</tr>
@@ -299,8 +313,103 @@
 							{formatRelativeTime(account.last_username_changed)}
 						</span>
 					</td>
-					<td class="p-2 h-12 text-white">
-						{account.modele_name || 'Aucun modèle'}
+					<td class="p-2 h-12 relative">
+						<div class="relative dropdown-container">
+							<div
+								class="px-3 py-1 flex items-center gap-2 w-fit rounded m-auto cursor-pointer hover:opacity-80 transition-opacity text-xs {account.warmup_phase ==
+								5
+									? 'bg-success/20 text-success/90'
+									: account.warmup_phase
+										? 'bg-warning/20 text-warning/90'
+										: 'bg-gray-500/20 text-gray-500'}"
+								onclick={() => toggleDropdown(`warmup_${account.id}`)}
+							>
+								<div
+									class="w-2 h-2 rounded-full {account.warmup_phase == 5
+										? 'bg-success/90'
+										: account.warmup_phase
+											? 'bg-warning/90'
+											: 'bg-gray-500'}"
+								></div>
+								{#if account.warmup_phase == 5}
+									<p class="text-success/90 font-semibold">Terminé</p>
+								{:else}
+									<p>{account.warmup_phase ? `Phase ${account.warmup_phase}` : 'Aucune'}</p>
+								{/if}
+								<svg
+									class="w-3 h-3 ml-1 transition-transform {openDropdownId ===
+									`warmup_${account.id}`
+										? 'rotate-180'
+										: ''}"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M19 9l-7 7-7-7"
+									></path>
+								</svg>
+							</div>
+							{#if openDropdownId === `warmup_${account.id}`}
+								<ul
+									class="menu bg-base-100 rounded-box z-[9999] w-32 p-2 shadow absolute top-full left-1/2 transform -translate-x-1/2 mt-1"
+								>
+									<li>
+										<button
+											class="flex items-center gap-2 w-full text-left hover:bg-base-200 p-2 rounded {!account.warmup_phase
+												? 'bg-base-200'
+												: ''}"
+											onclick={() => {
+												handleWarmupPhaseChange(account.id, null);
+												closeDropdown();
+											}}
+											disabled={isLoading}
+										>
+											<div class="w-2 h-2 rounded-full bg-gray-500"></div>
+											<span>Aucune</span>
+										</button>
+									</li>
+									{#each [1, 2, 3, 4] as phase}
+										<li>
+											<button
+												class="flex items-center gap-2 w-full text-left hover:bg-base-200 p-2 rounded {account.warmup_phase ===
+												phase
+													? 'bg-base-200'
+													: ''}"
+												onclick={() => {
+													handleWarmupPhaseChange(account.id, phase);
+													closeDropdown();
+												}}
+												disabled={isLoading}
+											>
+												<div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+												<span>Phase {phase}</span>
+											</button>
+										</li>
+									{/each}
+									<!-- Phase 5 - Terminé -->
+									<li>
+										<button
+											class="flex items-center gap-2 w-full text-left hover:bg-base-200 p-2 rounded {account.warmup_phase ===
+											5
+												? 'bg-base-200'
+												: ''}"
+											onclick={() => {
+												handleWarmupPhaseChange(account.id, 5);
+												closeDropdown();
+											}}
+											disabled={isLoading}
+										>
+											<div class="w-2 h-2 rounded-full bg-green-500"></div>
+											<span>Terminé</span>
+										</button>
+									</li>
+								</ul>
+							{/if}
+						</div>
 					</td>
 					<td class="p-2 h-12">
 						<div class="flex gap-1 justify-center flex-wrap">

@@ -19,7 +19,7 @@
 	let accountsText = $state('');
 
 	/**
-	 * Parser le texte des comptes au format pseudo:pass:email:pass
+	 * Parser le texte des comptes au format pseudo:pass:email:email_pass:challenge_pass
 	 */
 	function parseAccounts(text: string): InstagramAccountInput[] {
 		const lines = text
@@ -30,12 +30,13 @@
 
 		for (const line of lines) {
 			const parts = line.trim().split(':');
-			if (parts.length >= 4) {
+			if (parts.length >= 5) {
 				accounts.push({
 					username: parts[0],
 					password: parts[1],
 					challenge_mail: parts[2],
-					challenge_password: parts[3],
+					email_password: parts[3],
+					challenge_password: parts[4],
 					statut: 'nouveau'
 				});
 			}
@@ -52,7 +53,7 @@
 
 		const accounts = parseAccounts(accountsText);
 		if (accounts.length === 0) {
-			alert('Format invalide. Utilisez le format: pseudo:pass:email:pass');
+			alert('Format invalide. Utilisez le format: pseudo:pass:email:email_pass:challenge_pass');
 			return;
 		}
 
@@ -94,14 +95,14 @@
 			<Textarea
 				id="accounts"
 				bind:value={accountsText}
-				placeholder="pseudo:pass:email:pass
-pseudo:pass:email:pass
-pseudo:pass:email:pass"
+				placeholder="pseudo:pass:email:email_pass:challenge_pass
+pseudo:pass:email:email_pass:challenge_pass
+pseudo:pass:email:email_pass:challenge_pass"
 				class="min-h-[200px]"
 				disabled={instagramAccountsStore.isLoading.create}
 			/>
 			<p class="text-xs text-gray-500 mt-1">
-				Format: pseudo:motdepasse:email:motdepasseemail (un par ligne)
+				Format: pseudo:motdepasse:email:motdepasseemail:motdepassechallenge (un par ligne)
 			</p>
 		</div>
 

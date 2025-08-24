@@ -193,7 +193,7 @@
 				<input
 					type="radio"
 					name="my_tabs_1"
-					class="h-8 tab"
+					class="h-8 tab text-white"
 					aria-label="Aujourd'hui"
 					checked
 					onchange={handleTabChange}

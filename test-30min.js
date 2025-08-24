@@ -12,7 +12,7 @@ async function test30MinutesData() {
   try {
     // Configuration API v2 avec date_range personnalisé
     const SITE_ID = 'thebeast.fr';
-    const API_KEY = 'b2T5aTukVykd0ULbfLukmwJQvImAlVarM0aV1RtTBDG9hw-tmR8e_bLOVuoRZOdw';
+    const API_KEY = 'ri7WDjH-HjjqUdSRPIBtBTIPMLbqydLgYOJmHGYhxp9UYiYgaHO0-CuqFHb4iBti';
 
     const now = new Date();
     const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);

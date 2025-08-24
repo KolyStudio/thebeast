@@ -8,7 +8,7 @@ import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async ({ url, fetch }) => {
   try {
     // Vos cookies récupérés de Chrome - exactement comme dans votre fonction JavaScript
-    const cookies = 'logged_in=true; _plausible_prod=SFMyNTY.g3QAAAADbQAAAAtfY3NyZl90b2tlbm0AAAAYRHA4Y3N3bUJ6emdjSFVVOWxWbEhvTktNbQAAAA5saXZlX3NvY2tldF9pZG0AAAA6dXNlcl9zZXNzaW9uczpIaWFvdmxTZHpFM2FWZDdranNQTEpta1NTWEEyWUJVSEdaTFRIVUtlTllVPW0AAAAKdXNlcl90b2tlbm0AAAAgHiaovlSdzE3aVd7kjsPLJmkSSXA2YBUHGZLTHUKeNYU.j38syS3BEi2hRJSuO5KWZzZ-tAMsCcQyhjw4tCiYOF8';
+    const cookies = 'logged_in=true; _plausible_prod=SFMyNTY.g3QAAAADbQAAAAtfY3NyZl90b2tlbm0AAAAYMWMybUdzR1lqQ0kzUklvTzZnT1poUm9JbQAAAA5saXZlX3NvY2tldF9pZG0AAAA6dXNlcl9zZXNzaW9uczpVemEwWFkySzYwLUxSOHVuZkJOSTdNUnc5NWdER1Z5YkNmeGZXRUtqWjhrPW0AAAAKdXNlcl90b2tlbm0AAAAgUza0XY2K60-LR8unfBNI7MRw95gDGVybCfxfWEKjZ8k.Yei_lF6QZg_zm_eVh5yQ-19vGVPUeUUUq-cZ8GZSkiw';
 
     // Get date from query params or use today
     const dateParam = url.searchParams.get('date');

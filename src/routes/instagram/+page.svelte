@@ -44,6 +44,9 @@
 	// Filtre de statut actuel - mise à jour avec les nouveaux filtres
 	let currentFilter = $state('Actifs');
 
+	// Filtre de phase de warmup
+	let currentWarmupPhase = $state<number | null>(null);
+
 	// Chargement initial des comptes
 	onMount(async () => {
 		await instagramAccountsStore.fetchAccounts();
@@ -58,15 +61,40 @@
 			Utilisés: ['utilisé'],
 			Nouveaux: ['nouveau'],
 			Erreurs: ['erreur'],
-			Bannis: ['banni', 'shadowban', 'verification', 'warming']
+			Bannis: ['banni', 'shadowban', 'verification', 'warming'],
+			Warmup: ['warmup']
 		};
 
 		const targetStatuses = statusMap[currentFilter];
 		if (!targetStatuses) return instagramAccountsStore.accounts;
 
-		return instagramAccountsStore.accounts.filter((account) =>
-			targetStatuses.includes(account.statut?.toLowerCase() || '')
-		);
+		let accounts;
+		
+		// Logique spéciale pour le filtre Warmup
+		if (currentFilter === 'Warmup') {
+			// Pour Warmup, on filtre seulement par statut 'warmup'
+			accounts = instagramAccountsStore.accounts.filter((account) => {
+				// Inclure seulement les comptes avec statut 'warmup'
+				const hasWarmupStatus = account.statut?.toLowerCase() === 'warmup';
+				
+				if (currentWarmupPhase === null) {
+					// "Toutes les phases" : tous les comptes avec statut warmup
+					return hasWarmupStatus;
+				} else {
+					// Phase spécifique : seulement les comptes avec cette phase exacte
+					// Conversion en nombre pour gérer les cas où warmup_phase est une chaîne
+					const accountPhase = Number(account.warmup_phase);
+					return hasWarmupStatus && accountPhase === currentWarmupPhase;
+				}
+			});
+		} else {
+			// Logique normale pour les autres filtres
+			accounts = instagramAccountsStore.accounts.filter((account) =>
+				targetStatuses.includes(account.statut?.toLowerCase() || '')
+			);
+		}
+
+		return accounts;
 	});
 
 	// Compteurs dynamiques pour chaque statut
@@ -99,10 +127,31 @@
 			Utilisés: counts.utilisé,
 			Nouveaux: counts.nouveau,
 			Erreurs: counts.erreur,
-			Bannis: counts.banni + counts.shadowban + counts.verification + counts.warming
+			Bannis: counts.banni + counts.shadowban + counts.verification + counts.warming,
+			Warmup: instagramAccountsStore.accounts.filter(account => 
+				account.statut?.toLowerCase() === 'warmup'
+			).length
 		};
 
 		return groupedCounts;
+	});
+
+	// Compteurs dynamiques pour chaque phase de warmup
+	let warmupPhaseCounts = $derived(() => {
+		const warmupAccounts = instagramAccountsStore.accounts.filter(account => 
+			account.statut?.toLowerCase() === 'warmup'
+		);
+
+		const phaseCounts = {
+			'Toutes les phases': warmupAccounts.length,
+			'Phase 1': warmupAccounts.filter(account => Number(account.warmup_phase) === 1).length,
+			'Phase 2': warmupAccounts.filter(account => Number(account.warmup_phase) === 2).length,
+			'Phase 3': warmupAccounts.filter(account => Number(account.warmup_phase) === 3).length,
+			'Phase 4': warmupAccounts.filter(account => Number(account.warmup_phase) === 4).length,
+			'Terminé': warmupAccounts.filter(account => Number(account.warmup_phase) === 5).length
+		};
+
+		return phaseCounts;
 	});
 
 	function openEditDialog(account: InstagramAccount) {
@@ -226,6 +275,13 @@
 	}
 
 	/**
+	 * Fonction pour changer la phase de warmup d'un compte
+	 */
+	async function changeWarmupPhase(accountId: number, warmupPhase: number | null) {
+		await instagramAccountsStore.updateAccount(accountId, { warmup_phase: warmupPhase });
+	}
+
+	/**
 	 * Fonction pour ouvrir le dialog de changement de statut en masse
 	 */
 	function openBulkStatusChange() {
@@ -324,6 +380,7 @@
 </script>
 
 <div class="bg-base-100 rounded-2xl overflow-visible">
+	<!-- Barre de filtres principale -->
 	<div class="flex justify-between items-center">
 		<div class="h-10 tabs tabs-box m-2 w-fit">
 			<!-- Tabs dans l'ordre demandé : Actifs - En Cours - Disponibles - Utilisés - Nouveaux - Erreurs - Bannis -->
@@ -383,7 +440,19 @@
 				checked={currentFilter === 'Bannis'}
 				onchange={() => (currentFilter = 'Bannis')}
 			/>
+			<input
+				type="radio"
+				name="my_tabs_1"
+				class="h-8 tab [--tab-border-color:hsl(45_100%_50%)]"
+				aria-label="Warmup - {statusCounts().Warmup}"
+				checked={currentFilter === 'Warmup'}
+				onchange={() => {
+					currentFilter = 'Warmup';
+					currentWarmupPhase = null;
+				}}
+			/>
 		</div>
+		
 		<div class="gap-2 flex items-center">
 			<button
 				onclick={refreshAccounts}
@@ -469,10 +538,67 @@
 				class="bg-base-200 mr-2 hover:bg-base-300 cursor-pointer rounded-lg transition-colors"
 			>
 				<Shield class="w-5 h-5 m-2" />
-			</button>
+		</button>
+	</div>
+</div>
+
+<!-- Seconde barre de filtres pour les phases de warmup -->
+{#if currentFilter === 'Warmup'}
+	<div class="px-4 pb-2">
+		<div class="h-8 tabs tabs-box w-fit">
+			<input
+				type="radio"
+				name="warmup_phases"
+				class="h-6 tab text-sm"
+				aria-label="Toutes les phases - {warmupPhaseCounts()['Toutes les phases']}"
+				checked={currentWarmupPhase === null}
+				onchange={() => (currentWarmupPhase = null)}
+			/>
+			<input
+				type="radio"
+				name="warmup_phases"
+				class="h-6 tab text-sm"
+				aria-label="Phase 1 - {warmupPhaseCounts()['Phase 1']}"
+				checked={currentWarmupPhase === 1}
+				onchange={() => (currentWarmupPhase = 1)}
+			/>
+			<input
+				type="radio"
+				name="warmup_phases"
+				class="h-6 tab text-sm"
+				aria-label="Phase 2 - {warmupPhaseCounts()['Phase 2']}"
+				checked={currentWarmupPhase === 2}
+				onchange={() => (currentWarmupPhase = 2)}
+			/>
+			<input
+				type="radio"
+				name="warmup_phases"
+				class="h-6 tab text-sm"
+				aria-label="Phase 3 - {warmupPhaseCounts()['Phase 3']}"
+				checked={currentWarmupPhase === 3}
+				onchange={() => (currentWarmupPhase = 3)}
+			/>
+			<input
+				type="radio"
+				name="warmup_phases"
+				class="h-6 tab text-sm"
+				aria-label="Phase 4 - {warmupPhaseCounts()['Phase 4']}"
+				checked={currentWarmupPhase === 4}
+				onchange={() => (currentWarmupPhase = 4)}
+			/>
+			<input
+				type="radio"
+				name="warmup_phases"
+				class="h-6 tab text-sm"
+				aria-label="Terminé - {warmupPhaseCounts()['Terminé']}"
+				checked={currentWarmupPhase === 5}
+				onchange={() => (currentWarmupPhase = 5)}
+			/>
 		</div>
 	</div>
-	<TableAccounts
+{/if}
+
+<TableAccounts
 		accounts={filteredAccounts()}
 		isLoading={instagramAccountsStore.isLoading.fetch}
 		{selectedAccountIds}
@@ -482,6 +608,7 @@
 		onToggleSelectAll={toggleSelectAll}
 		onStatusChange={changeAccountStatus}
 		onChangeToggle={toggleAccountChange}
+		onWarmupPhaseChange={changeWarmupPhase}
 	/>
 </div>
 

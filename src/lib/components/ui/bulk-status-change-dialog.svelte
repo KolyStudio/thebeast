@@ -31,7 +31,8 @@
 		{ value: 'utilisé', label: 'Utilisé' },
 		{ value: 'nouveau', label: 'Nouveau' },
 		{ value: 'erreur', label: 'Erreur' },
-		{ value: 'banni', label: 'Banni' }
+		{ value: 'banni', label: 'Banni' },
+		{ value: 'warmup', label: 'Warmup' }
 	];
 
 	/**

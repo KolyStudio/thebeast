@@ -22,6 +22,7 @@
 		statut: '',
 		modele_name: '',
 		challenge_mail: '',
+		email_password: '',
 		challenge_password: '',
 		error_message: ''
 	});
@@ -35,6 +36,7 @@
 				statut: selectedAccount.statut || '',
 				modele_name: selectedAccount.modele_name || '',
 				challenge_mail: selectedAccount.challenge_mail || '',
+				email_password: selectedAccount.email_password || '',
 				challenge_password: selectedAccount.challenge_password || '',
 				error_message: selectedAccount.error_message || ''
 			};
@@ -45,6 +47,7 @@
 				statut: '',
 				modele_name: '',
 				challenge_mail: '',
+				email_password: '',
 				challenge_password: '',
 				error_message: ''
 			};
@@ -66,6 +69,7 @@
 				statut: formData.statut,
 				modele_name: formData.modele_name,
 				challenge_mail: formData.challenge_mail,
+				email_password: formData.email_password,
 				challenge_password: formData.challenge_password,
 				error_message: formData.error_message
 			});
@@ -193,6 +197,18 @@
 				<Input
 					type="password"
 					placeholder="Mot de passe email"
+					bind:value={formData.email_password}
+					class="w-full"
+					disabled={instagramAccountsStore.isLoading.update}
+				/>
+			</div>
+
+			<!-- Mot de passe challenge -->
+			<div class="flex w-full flex-col gap-1.5">
+				<Label class="text-sm font-medium">Mot de passe challenge</Label>
+				<Input
+					type="password"
+					placeholder="Mot de passe challenge"
 					bind:value={formData.challenge_password}
 					class="w-full"
 					disabled={instagramAccountsStore.isLoading.update}

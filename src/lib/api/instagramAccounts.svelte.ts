@@ -29,10 +29,12 @@ export interface InstagramAccount {
   changed_statut: boolean | null;
   changed_type: boolean | null;
   challenge_mail: string | null;
+  email_password: string | null;
   challenge_password: string | null;
   relogins: string | null;
   last_username_changed: string | null;
   error_message: string | null;
+  warmup_phase: number | null;
 }
 
 // Interface pour créer/modifier un compte (sans id)
@@ -59,10 +61,12 @@ export interface InstagramAccountInput {
   changed_statut?: boolean | null;
   changed_type?: boolean | null;
   challenge_mail?: string | null;
+  email_password?: string | null;
   challenge_password?: string | null;
   relogins?: string | null;
   last_username_changed?: string | null;
   error_message?: string | null;
+  warmup_phase?: number | null;
 }
 
 // Types pour les réponses et les erreurs
