@@ -9,7 +9,7 @@
 
 export const PLAUSIBLE_CONFIG = {
   // Votre clé API Plausible (ne pas modifier)
-  API_KEY: "8cuwn8ntQ3fSoqLL7RoiqDCy_jZozzX1ub-Sh85AueA1mos_MvdnsSXqQxUi7rjW",
+  API_KEY: "LmE81N650YhlNrIAL8ge0Li20mVaoK1YhOvHZCRQkYkRfUc9WNM6X2KF7MgdcCCw",
 
   // IMPORTANT: Remplacez par votre domaine exact tel qu'il apparaît dans Plausible
   SITE_ID: "my-secret.net",
