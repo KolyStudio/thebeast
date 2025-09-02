@@ -164,10 +164,24 @@
 	// État des erreurs de validation
 	let validationErrors = $state<ValidationError[]>([]);
 
-	// Réinitialiser le formulaire quand le dialog se ferme
+	// Initialiser le formulaire à l'ouverture et le réinitialiser à la fermeture
 	let previousOpen = $state(open);
 	$effect(() => {
-		if (previousOpen && !open) {
+		// Si la popup s'ouvre (previousOpen était false et open est maintenant true)
+		if (!previousOpen && open) {
+			// Initialiser les données par défaut
+			formData = {
+				username: '',
+				bio: 'en train de chiner ou de faire des bêtises\n⊹.✮l2 staps✮₊⋆',
+				photo: '',
+				firstname: 'Marine 💕',
+				url: 'https://my-secret.net/marine',
+				statut: 'private',
+				account_type: 'personal'
+			};
+		}
+		// Si la popup se ferme (previousOpen était true et open est maintenant false)
+		else if (previousOpen && !open) {
 			resetForm();
 		}
 		previousOpen = open;
@@ -1115,7 +1129,7 @@ pseudo3"
 								{#if selectedPhotoFiles.length > 0}
 									<div class="space-y-2">
 										{#each selectedPhotoFiles as file, index}
-											<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+											<div class="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
 												<img
 													src={photoPreviewUrls[index]}
 													alt="Aperçu {index + 1}"
@@ -1128,7 +1142,7 @@ pseudo3"
 													</p>
 												</div>
 												<Button
-													variant="outline"
+													class="bg-error/20 text-error/90 hover:bg-error/30 "
 													size="sm"
 													onclick={() => removePhotoAtIndex(index)}
 													disabled={!fieldsToEdit.photo}
@@ -1155,8 +1169,8 @@ pseudo3"
 							{#if fieldsToEdit.photo}
 								<p
 									class="text-xs {selectedPhotoFiles.length >= selectedAccounts.length
-										? 'text-green-600'
-										: 'text-red-600'}"
+										? 'text-success'
+										: 'text-error'}"
 								>
 									{selectedPhotoFiles.length} photo(s) fournie(s) / {selectedAccounts.length} requise(s)
 								</p>

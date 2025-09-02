@@ -866,7 +866,7 @@
 			{#if selectedAccountIds.size > 0}
 				<button
 					onclick={confirmBulkDelete}
-					class="bg-error hover:bg-error/80 text-error-content cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition-colors flex items-center"
+					class="bg-error/20 text-error/90 text-error-content cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition-colors flex items-center"
 					disabled={isDeletingAccount}
 					title="Supprimer les comptes sélectionnés"
 				>
@@ -875,7 +875,7 @@
 					{:else}
 						<Trash class="w-4 h-4 inline mr-2" />
 					{/if}
-					({selectedAccountIds.size})
+					{selectedAccountIds.size}
 				</button>
 			{/if}
 

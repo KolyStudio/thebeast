@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CirclePlus, RefreshCw, Loader2, Edit, Terminal } from 'lucide-svelte';
+	import { CirclePlus, RefreshCw, Loader2, Edit, Terminal, Zap } from 'lucide-svelte';
 	import AddAccount from '$lib/components/instagram/addAccount.svelte';
 	import EditAccount from '$lib/components/instagram/editAccount.svelte';
 	import EditProxies from '$lib/components/instagram/listProxies.svelte';
@@ -9,6 +9,7 @@
 	import DeleteConfirmationDialog from '$lib/components/ui/delete-confirmation-dialog.svelte';
 	import BulkStatusChangeDialog from '$lib/components/ui/bulk-status-change-dialog.svelte';
 	import BulkOrderDialog from '$lib/components/ui/bulk-order-dialog.svelte';
+	import WarmupResultDialog from '$lib/components/ui/warmup-result-dialog.svelte';
 	import { Shield, ShoppingCart } from '@lucide/svelte';
 	import { instagramAccountsStore, type InstagramAccount } from '$lib/api/instagramAccounts.svelte';
 
@@ -33,6 +34,17 @@
 	// État pour les commandes en masse
 	let bulkOrderOpen = $state(false);
 
+	// État pour le warmup en masse
+	let bulkWarmupLoading = $state(false);
+	let warmupResultDialogOpen = $state(false);
+	let warmupResult = $state<{
+		success: boolean;
+		job_id?: string;
+		total_accounts?: number;
+		estimated_duration_minutes?: number;
+		message?: string;
+	} | null>(null);
+
 	// État pour le terminal et les opérations
 	let bulkEditComponent: BulkEditAccounts;
 
@@ -44,8 +56,8 @@
 	// Filtre de statut actuel - mise à jour avec les nouveaux filtres
 	let currentFilter = $state('Actifs');
 
-	// Filtre de phase de warmup
-	let currentWarmupPhase = $state<number | null>(null);
+	// Filtre de phase de warmup - utilise 'all' pour toutes les phases, 'none' pour aucune phase, sinon le numéro de phase
+	let currentWarmupPhase = $state<number | 'all' | 'none'>('all');
 
 	// Chargement initial des comptes
 	onMount(async () => {
@@ -69,20 +81,26 @@
 		if (!targetStatuses) return instagramAccountsStore.accounts;
 
 		let accounts;
-		
+
 		// Logique spéciale pour le filtre Warmup
 		if (currentFilter === 'Warmup') {
 			// Pour Warmup, on filtre seulement par statut 'warmup'
 			accounts = instagramAccountsStore.accounts.filter((account) => {
 				// Inclure seulement les comptes avec statut 'warmup'
 				const hasWarmupStatus = account.statut?.toLowerCase() === 'warmup';
-				
-				if (currentWarmupPhase === null) {
+
+				if (currentWarmupPhase === 'all') {
 					// "Toutes les phases" : tous les comptes avec statut warmup
 					return hasWarmupStatus;
+				} else if (currentWarmupPhase === 'none') {
+					// "Aucune" : comptes avec statut warmup mais sans phase définie (null)
+					return hasWarmupStatus && account.warmup_phase === null;
 				} else {
 					// Phase spécifique : seulement les comptes avec cette phase exacte
-					// Conversion en nombre pour gérer les cas où warmup_phase est une chaîne
+					// Vérifier d'abord que warmup_phase n'est pas null avant la conversion
+					if (account.warmup_phase === null) {
+						return false; // Les comptes sans phase ne correspondent à aucune phase numérique
+					}
 					const accountPhase = Number(account.warmup_phase);
 					return hasWarmupStatus && accountPhase === currentWarmupPhase;
 				}
@@ -128,8 +146,8 @@
 			Nouveaux: counts.nouveau,
 			Erreurs: counts.erreur,
 			Bannis: counts.banni + counts.shadowban + counts.verification + counts.warming,
-			Warmup: instagramAccountsStore.accounts.filter(account => 
-				account.statut?.toLowerCase() === 'warmup'
+			Warmup: instagramAccountsStore.accounts.filter(
+				(account) => account.statut?.toLowerCase() === 'warmup'
 			).length
 		};
 
@@ -138,17 +156,31 @@
 
 	// Compteurs dynamiques pour chaque phase de warmup
 	let warmupPhaseCounts = $derived(() => {
-		const warmupAccounts = instagramAccountsStore.accounts.filter(account => 
-			account.statut?.toLowerCase() === 'warmup'
+		const warmupAccounts = instagramAccountsStore.accounts.filter(
+			(account) => account.statut?.toLowerCase() === 'warmup'
 		);
 
 		const phaseCounts = {
 			'Toutes les phases': warmupAccounts.length,
-			'Phase 1': warmupAccounts.filter(account => Number(account.warmup_phase) === 1).length,
-			'Phase 2': warmupAccounts.filter(account => Number(account.warmup_phase) === 2).length,
-			'Phase 3': warmupAccounts.filter(account => Number(account.warmup_phase) === 3).length,
-			'Phase 4': warmupAccounts.filter(account => Number(account.warmup_phase) === 4).length,
-			'Terminé': warmupAccounts.filter(account => Number(account.warmup_phase) === 5).length
+			Aucune: warmupAccounts.filter((account) => account.warmup_phase === null).length,
+			'Phase 0': warmupAccounts.filter(
+				(account) => account.warmup_phase !== null && Number(account.warmup_phase) === 0
+			).length,
+			'Phase 1': warmupAccounts.filter(
+				(account) => account.warmup_phase !== null && Number(account.warmup_phase) === 1
+			).length,
+			'Phase 2': warmupAccounts.filter(
+				(account) => account.warmup_phase !== null && Number(account.warmup_phase) === 2
+			).length,
+			'Phase 3': warmupAccounts.filter(
+				(account) => account.warmup_phase !== null && Number(account.warmup_phase) === 3
+			).length,
+			'Phase 4': warmupAccounts.filter(
+				(account) => account.warmup_phase !== null && Number(account.warmup_phase) === 4
+			).length,
+			Terminé: warmupAccounts.filter(
+				(account) => account.warmup_phase !== null && Number(account.warmup_phase) === 5
+			).length
 		};
 
 		return phaseCounts;
@@ -377,6 +409,83 @@
 			throw error;
 		}
 	}
+
+	/**
+	 * Fonction pour démarrer le warmup en masse
+	 */
+	async function startBulkWarmup() {
+		if (selectedAccountIds.size === 0) {
+			warmupResult = {
+				success: false,
+				message: 'Veuillez sélectionner au moins un compte pour le warmup.'
+			};
+			warmupResultDialogOpen = true;
+			return;
+		}
+
+		bulkWarmupLoading = true;
+
+		try {
+			// Préparer les données des comptes sélectionnés
+			const accountsData = selectedAccountsForBulkEdit().map((account) => ({
+				id: account.id,
+				username: account.username || ''
+			}));
+
+			// Appeler l'API de warmup
+			const response = await fetch('/api/accounts/warmup', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					accounts: accountsData,
+					batch_size: 10
+				})
+			});
+
+			const result = await response.json();
+
+			if (response.ok) {
+				warmupResult = {
+					success: true,
+					job_id: result.job_id,
+					total_accounts: result.total_accounts,
+					estimated_duration_minutes: result.estimated_duration_minutes
+				};
+
+				// Réinitialiser la sélection
+				selectedAccountIds = new Set();
+
+				// Actualiser la liste des comptes pour voir les mises à jour
+				await refreshAccounts();
+			} else {
+				warmupResult = {
+					success: false,
+					message: result.message || 'Erreur lors du démarrage du warmup'
+				};
+			}
+
+			warmupResultDialogOpen = true;
+		} catch (error) {
+			console.error('Erreur lors du warmup en masse:', error);
+			warmupResult = {
+				success: false,
+				message: `Erreur lors du warmup: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
+			};
+			warmupResultDialogOpen = true;
+		} finally {
+			bulkWarmupLoading = false;
+		}
+	}
+
+	/**
+	 * Fonction pour fermer le dialog de résultat de warmup
+	 */
+	function closeWarmupResultDialog() {
+		warmupResultDialogOpen = false;
+		warmupResult = null;
+	}
 </script>
 
 <div class="bg-base-100 rounded-2xl overflow-visible">
@@ -448,11 +557,11 @@
 				checked={currentFilter === 'Warmup'}
 				onchange={() => {
 					currentFilter = 'Warmup';
-					currentWarmupPhase = null;
+					currentWarmupPhase = 'all';
 				}}
 			/>
 		</div>
-		
+
 		<div class="gap-2 flex items-center">
 			<button
 				onclick={refreshAccounts}
@@ -517,6 +626,27 @@
 				/>
 			</button>
 
+			<!-- Bouton Warmup en masse -->
+			<button
+				onclick={startBulkWarmup}
+				class="rounded-lg transition-colors {selectedAccountIds.size === 0 || bulkWarmupLoading
+					? 'bg-base-300 cursor-not-allowed opacity-50'
+					: 'bg-base-200 hover:bg-base-300 cursor-pointer'}"
+				disabled={selectedAccountIds.size === 0 || bulkWarmupLoading}
+				title="Démarrer le warmup en masse ({selectedAccountIds.size} sélectionné(s))"
+				aria-label="Démarrer le warmup en masse"
+			>
+				{#if bulkWarmupLoading}
+					<Loader2 class="w-5 h-5 m-2 animate-spin text-gray-500" />
+				{:else}
+					<Zap
+						class="w-5 h-5 m-2 {selectedAccountIds.size === 0
+							? 'text-gray-500'
+							: 'text-yellow-500'}"
+					/>
+				{/if}
+			</button>
+
 			<!-- Bouton Terminal -->
 			<button
 				onclick={openTerminal}
@@ -538,67 +668,83 @@
 				class="bg-base-200 mr-2 hover:bg-base-300 cursor-pointer rounded-lg transition-colors"
 			>
 				<Shield class="w-5 h-5 m-2" />
-		</button>
-	</div>
-</div>
-
-<!-- Seconde barre de filtres pour les phases de warmup -->
-{#if currentFilter === 'Warmup'}
-	<div class="px-4 pb-2">
-		<div class="h-8 tabs tabs-box w-fit">
-			<input
-				type="radio"
-				name="warmup_phases"
-				class="h-6 tab text-sm"
-				aria-label="Toutes les phases - {warmupPhaseCounts()['Toutes les phases']}"
-				checked={currentWarmupPhase === null}
-				onchange={() => (currentWarmupPhase = null)}
-			/>
-			<input
-				type="radio"
-				name="warmup_phases"
-				class="h-6 tab text-sm"
-				aria-label="Phase 1 - {warmupPhaseCounts()['Phase 1']}"
-				checked={currentWarmupPhase === 1}
-				onchange={() => (currentWarmupPhase = 1)}
-			/>
-			<input
-				type="radio"
-				name="warmup_phases"
-				class="h-6 tab text-sm"
-				aria-label="Phase 2 - {warmupPhaseCounts()['Phase 2']}"
-				checked={currentWarmupPhase === 2}
-				onchange={() => (currentWarmupPhase = 2)}
-			/>
-			<input
-				type="radio"
-				name="warmup_phases"
-				class="h-6 tab text-sm"
-				aria-label="Phase 3 - {warmupPhaseCounts()['Phase 3']}"
-				checked={currentWarmupPhase === 3}
-				onchange={() => (currentWarmupPhase = 3)}
-			/>
-			<input
-				type="radio"
-				name="warmup_phases"
-				class="h-6 tab text-sm"
-				aria-label="Phase 4 - {warmupPhaseCounts()['Phase 4']}"
-				checked={currentWarmupPhase === 4}
-				onchange={() => (currentWarmupPhase = 4)}
-			/>
-			<input
-				type="radio"
-				name="warmup_phases"
-				class="h-6 tab text-sm"
-				aria-label="Terminé - {warmupPhaseCounts()['Terminé']}"
-				checked={currentWarmupPhase === 5}
-				onchange={() => (currentWarmupPhase = 5)}
-			/>
+			</button>
 		</div>
 	</div>
-{/if}
 
-<TableAccounts
+	<!-- Seconde barre de filtres pour les phases de warmup -->
+	{#if currentFilter === 'Warmup'}
+		<div class="px-2 pb-2">
+			<div class="h-10 tabs tabs-box w-fit">
+				<input
+					type="radio"
+					name="warmup_phases"
+					class="h-8 tab text-sm"
+					aria-label="Toutes les phases - {warmupPhaseCounts()['Toutes les phases']}"
+					checked={currentWarmupPhase === 'all'}
+					onchange={() => (currentWarmupPhase = 'all')}
+				/>
+				<input
+					type="radio"
+					name="warmup_phases"
+					class="h-8 tab text-sm"
+					aria-label="Aucune - {warmupPhaseCounts()['Aucune']}"
+					checked={currentWarmupPhase === 'none'}
+					onchange={() => (currentWarmupPhase = 'none')}
+				/>
+				<input
+					type="radio"
+					name="warmup_phases"
+					class="h-8 tab text-sm"
+					aria-label="Phase 0 - {warmupPhaseCounts()['Phase 0']}"
+					checked={currentWarmupPhase === 0}
+					onchange={() => (currentWarmupPhase = 0)}
+				/>
+				<input
+					type="radio"
+					name="warmup_phases"
+					class="h-8 tab text-sm"
+					aria-label="Phase 1 - {warmupPhaseCounts()['Phase 1']}"
+					checked={currentWarmupPhase === 1}
+					onchange={() => (currentWarmupPhase = 1)}
+				/>
+				<input
+					type="radio"
+					name="warmup_phases"
+					class="h-8 tab text-sm"
+					aria-label="Phase 2 - {warmupPhaseCounts()['Phase 2']}"
+					checked={currentWarmupPhase === 2}
+					onchange={() => (currentWarmupPhase = 2)}
+				/>
+				<input
+					type="radio"
+					name="warmup_phases"
+					class="h-8 tab text-sm"
+					aria-label="Phase 3 - {warmupPhaseCounts()['Phase 3']}"
+					checked={currentWarmupPhase === 3}
+					onchange={() => (currentWarmupPhase = 3)}
+				/>
+				<input
+					type="radio"
+					name="warmup_phases"
+					class="h-8 tab text-sm"
+					aria-label="Phase 4 - {warmupPhaseCounts()['Phase 4']}"
+					checked={currentWarmupPhase === 4}
+					onchange={() => (currentWarmupPhase = 4)}
+				/>
+				<input
+					type="radio"
+					name="warmup_phases"
+					class="h-8 tab text-sm"
+					aria-label="Terminé - {warmupPhaseCounts()['Terminé']}"
+					checked={currentWarmupPhase === 5}
+					onchange={() => (currentWarmupPhase = 5)}
+				/>
+			</div>
+		</div>
+	{/if}
+
+	<TableAccounts
 		accounts={filteredAccounts()}
 		isLoading={instagramAccountsStore.isLoading.fetch}
 		{selectedAccountIds}
@@ -659,4 +805,11 @@
 	onConfirm={confirmBulkOrder}
 	onCancel={closeBulkOrder}
 	isLoading={instagramAccountsStore.isLoading.update}
+/>
+
+<!-- Dialog de résultat de warmup -->
+<WarmupResultDialog
+	bind:open={warmupResultDialogOpen}
+	result={warmupResult}
+	onClose={closeWarmupResultDialog}
 />

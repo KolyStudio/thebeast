@@ -15,13 +15,13 @@
 			proxy_renew_port: string;
 			api_sms_activate: string;
 			application: string;
-			keywords: string;
 			prenoms: string;
 			instagram_url: string;
 			instagram_main_account: string;
 			instagram_prenoms: string;
 			instagram_pseudos: string;
 			instagram_type: string;
+			statut: string;
 		};
 		onCreate: () => Promise<void>;
 	}>();
@@ -90,15 +90,21 @@
 				>
 					<ToggleGroup.Item
 						value="fruitz"
-						class="px-4 h-9 rounded-xl w-20 data-[state=on]:bg-white data-[state=on]:text-white flex items-center justify-center"
+						class="cursor-pointer px-4 h-9 rounded-xl w-20 data-[state=on]:bg-white data-[state=on]:text-white flex items-center justify-center"
 					>
 						<img src="/fruitz.png" alt="Fruitz" class="h-6" />
 					</ToggleGroup.Item>
 					<ToggleGroup.Item
 						value="happn"
-						class="px-4 rounded-xl h-9 w-20 data-[state=on]:bg-white data-[state=on]:text-white flex items-center justify-center"
+						class="cursor-pointer px-4 rounded-xl h-9 w-20 data-[state=on]:bg-white data-[state=on]:text-white flex items-center justify-center"
 					>
 						<img src="/happn.png" alt="Happn" class="h-5" />
+					</ToggleGroup.Item>
+					<ToggleGroup.Item
+						value="feels"
+						class="cursor-pointer px-4 rounded-xl h-9 w-20 data-[state=on]:bg-white data-[state=on]:text-white flex items-center justify-center"
+					>
+						<img src="/feels.png" alt="Feels" class="h-5" />
 					</ToggleGroup.Item>
 				</ToggleGroup.Root>
 			</div>
@@ -147,10 +153,7 @@
 			</div>
 
 			<div class="flex justify-end mt-6">
-				<Button onclick={onCreate} class="bg-[#080808] hover:bg-[#080808]/90 text-white">
-					<CirclePlus class="w-4 h-4 mr-2" />
-					Ajouter un agent
-				</Button>
+				<Button onclick={onCreate} class="">Ajouter un agent</Button>
 			</div>
 		</div>
 	</div>

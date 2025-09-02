@@ -71,10 +71,11 @@
 					</div>
 					<p class="text-sm text-muted-foreground mb-2">Entrez vos mots clés, un par ligne.</p>
 					<Textarea
-						placeholder="Entrez vos mots clés ici, un par ligne"
+						placeholder="Cette fonctionnalité n'est plus disponible"
 						rows={10}
-						class="font-mono text-sm resize-none bg-white"
-						bind:value={formValues[agent.id].keywords}
+						class="font-mono text-sm resize-none bg-gray-100"
+						disabled
+						value="Les mots clés ne sont plus utilisés dans cette version."
 					/>
 				</div>
 			</div>

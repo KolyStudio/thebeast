@@ -281,7 +281,7 @@
 						<div class="max-h-32 overflow-y-auto bg-base-300 rounded-lg p-3">
 							{#each validAccounts as account}
 								<div class="flex items-center gap-2 text-sm py-1">
-									<CheckCircle class="h-3 w-3 text-green-500" />
+									<CheckCircle class="h-3 w-3 text-success" />
 									<span class="font-medium">{account.username}</span>
 									<span class="text-neutral-content">
 										({quantityMode === 'random' ? '50-70' : fixedQuantity} followers)

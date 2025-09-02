@@ -11,6 +11,7 @@
 	interface AppFilters {
 		fruitz: boolean;
 		happn: boolean;
+		feels: boolean;
 		[key: string]: boolean;
 	}
 
@@ -23,7 +24,7 @@
 	}
 
 	// État réactif
-	let appFilters = $state<AppFilters>({ fruitz: true, happn: true });
+	let appFilters = $state<AppFilters>({ fruitz: true, happn: true, feels: true });
 	let selectedAgentForLogs = $state('');
 	let agentLogs = $state<Record<string, LogEntry[]>>({});
 	let accounts = $state<any[]>([]);
@@ -36,8 +37,8 @@
 	function toggleApp(app: string, value: boolean): void {
 		appFilters[app] = value;
 
-		// Si les deux filtres sont désélectionnés, activer celui-ci
-		if (!appFilters.fruitz && !appFilters.happn) {
+		// Si tous les filtres sont désélectionnés, activer celui-ci
+		if (!appFilters.fruitz && !appFilters.happn && !appFilters.feels) {
 			appFilters[app] = true;
 		}
 	}
@@ -165,7 +166,7 @@
 		<div class="flex flex-col gap-4 w-full"></div>
 		<div class="flex flex-col gap-4 w-full">
 			<div
-				class="flex items-center justify-center px-4 gap-3 bg-muted rounded-b-2xl h-14 w-full mt-2 md:mt-0"
+				class="flex items-center justify-center px-4 gap-3 bg-base-200 rounded-b-2xl h-14 w-full mt-2 md:mt-0"
 			>
 				<div class="flex items-center gap-4">
 					<AgentActions />
@@ -181,7 +182,7 @@
 		<div class="md:col-span-6 col-span-12">
 			<!-- Application Filter Bar -->
 			<div
-				class="mb-2 bg-card rounded-2xl py-0 flex items-center justify-between border border-border"
+				class="mb-2 bg-base-200 rounded-2xl py-0 flex items-center justify-between border border-border"
 			>
 				<AppFilters {appFilters} onToggleApp={toggleApp} />
 			</div>

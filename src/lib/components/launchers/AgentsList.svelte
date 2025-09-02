@@ -5,7 +5,7 @@
 
 	// Define the props
 	let { appFilters, selectedAgentId, onAgentSelect, getLastLogTime } = $props<{
-		appFilters: { fruitz: boolean; happn: boolean };
+		appFilters: { fruitz: boolean; happn: boolean; feels: boolean };
 		selectedAgentId: string;
 		onAgentSelect: (agentId: string) => Promise<void>;
 		getLastLogTime: (agentId: string) => string;
@@ -63,8 +63,8 @@
 		// Update the selected filter
 		appFilters[app] = value;
 
-		// If both filters are deselected, enable the current one
-		if (!appFilters.fruitz && !appFilters.happn) {
+		// If all filters are deselected, enable the current one
+		if (!appFilters.fruitz && !appFilters.happn && !appFilters.feels) {
 			appFilters[app] = true;
 		}
 	}
@@ -103,7 +103,7 @@
 						}
 					}}
 					class={cn(
-						'm-[2px] md:m-0 flex items-center justify-between bg-card rounded-3xl p-2 transition-colors duration-200 cursor-pointer hover:bg-muted border border-border',
+						'm-[2px] md:m-0 flex items-center justify-between bg-base-200 rounded-3xl p-2 transition-colors duration-200 cursor-pointer hover:bg-base-200 border border-border',
 						selectedAgentId === agent.id && 'ring-2 ring-white'
 					)}
 					onclick={() => onAgentSelect(agent.id)}
@@ -115,8 +115,8 @@
 							class={cn(
 								'rounded-full p-2 w-12 h-12 flex items-center justify-center transition-all duration-200 cursor-pointer',
 								agent.statut === 'started'
-									? 'bg-red-400 text-red-900 hover:bg-red-300'
-									: 'bg-green-400 text-green-900 hover:bg-green-300'
+									? 'bg-error/30 text-error/90 hover:bg-error/80'
+									: 'bg-success/30 text-success/90 hover:bg-success/80'
 							)}
 							onclick={(e) => {
 								e.stopPropagation();
@@ -164,7 +164,7 @@
 	{#if !showAllAgents && getFilteredSortedAgents().length > 3 && isMobile}
 		<div class="flex justify-center mt-2">
 			<button
-				class="text-xs text-muted-foreground font-medium px-4 py-2 bg-muted rounded-full flex items-center gap-1 hover:bg-accent hover:text-accent-foreground transition-colors"
+				class="text-xs text-muted-foreground font-medium px-4 py-2 bg-base-200 rounded-full flex items-center gap-1 hover:bg-accent hover:text-accent-foreground transition-colors"
 				onclick={() => (showAllAgents = true)}
 			>
 				<span>Voir {getFilteredSortedAgents().length - 3} autres agents</span>

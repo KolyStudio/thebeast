@@ -7,7 +7,8 @@
 		Users,
 		BarChart3,
 		MessageSquare,
-		Rocket
+		Rocket,
+		Activity
 	} from '@lucide/svelte';
 	import { page } from '$app/stores';
 
@@ -35,6 +36,16 @@
 					label: 'Instagram',
 					href: '/instagram',
 					icon: Instagram
+				}
+			]
+		},
+		{
+			category: 'SANTÉ',
+			items: [
+				{
+					label: 'Sport',
+					href: '/sport',
+					icon: Activity
 				}
 			]
 		}

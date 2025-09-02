@@ -229,12 +229,12 @@
 	}
 </script>
 
-<div class="bg-card shadow-lg shadow-black/10 w-full rounded-3xl pb-5 border border-border">
+<div class="bg-base-200 shadow-lg shadow-black/10 w-full rounded-3xl pb-5 border border-border">
 	<div class="flex justify-center md:justify-between items-center p-4">
 		<div class="hidden md:flex items-center gap-2">
 			<h2 class="text-xl font-semibold text-foreground">Liste des comptes</h2>
 			<button
-				class="p-1.5 bg-muted hover:bg-accent text-muted-foreground hover:text-accent-foreground rounded-full transition-colors"
+				class="p-1.5 bg-base-200 hover:bg-accent text-muted-foreground hover:text-accent-foreground rounded-full transition-colors"
 				onclick={fetchAccounts}
 				aria-label="Rafraîchir les comptes"
 			>
@@ -266,7 +266,7 @@
 	<!-- Ajout d'un bouton de rafraîchissement sur mobile -->
 	<div class="mb-3 px-4 md:hidden">
 		<button
-			class="flex items-center justify-center w-full py-2 bg-muted hover:bg-accent rounded-xl text-sm gap-2 text-muted-foreground hover:text-accent-foreground transition-colors"
+			class="flex items-center justify-center w-full py-2 bg-base-200 hover:bg-accent rounded-xl text-sm gap-2 text-muted-foreground hover:text-accent-foreground transition-colors"
 			onclick={fetchAccounts}
 		>
 			<svg
@@ -287,7 +287,7 @@
 		</button>
 	</div>
 
-	<div class="bg-card rounded-lg mx-4 mb-4 border border-border">
+	<div class="bg-base-200 rounded-lg mx-4 mb-4 border border-border">
 		{#if isLoading}
 			<div class="flex justify-center items-center py-10">
 				<Loader2 class="w-8 h-8 animate-spin text-muted-foreground" />

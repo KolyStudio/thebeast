@@ -217,11 +217,7 @@
 
 					<!-- Bouton Stop -->
 					{#if onStop}
-						<Button
-							size="sm"
-							onclick={handleStop}
-							class="h-8 px-3 bg-rouge-500 hover:bg-red-600 text-white"
-						>
+						<Button size="sm" onclick={handleStop} class="h-8 px-3 bg-error/20 text-error/90   ">
 							<Square class="h-4 w-4" />
 						</Button>
 					{/if}

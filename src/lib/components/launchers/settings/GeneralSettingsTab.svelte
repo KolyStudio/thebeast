@@ -143,6 +143,12 @@
 							>
 								<img src="/happn.png" alt="Happn" class="h-5" />
 							</ToggleGroup.Item>
+							<ToggleGroup.Item
+								value="feels"
+								class="px-4 rounded-xl h-9 w-20 data-[state=on]:bg-gray-200 data-[state=on]:text-white flex items-center justify-center"
+							>
+								<img src="/feels.png" alt="Feels" class="h-5" />
+							</ToggleGroup.Item>
 						</ToggleGroup.Root>
 					</div>
 

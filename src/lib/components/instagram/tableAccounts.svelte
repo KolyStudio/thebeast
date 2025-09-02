@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Pencil, Trash, Loader2 } from 'lucide-svelte';
 	import { type InstagramAccount } from '$lib/api/instagramAccounts.svelte';
-	import { formatRelativeTime } from '$lib/utils/dateUtils';
+	import dayjs from 'dayjs';
 
 	interface Props {
 		accounts: InstagramAccount[];
@@ -107,17 +107,78 @@
 	}
 
 	/**
-	 * Fonction pour obtenir le texte d'affichage d'un changement
-	 */
-	function getChangeText(changed: boolean | null) {
-		return changed ? 'Oui' : 'Non';
-	}
-
-	/**
 	 * Fonction pour obtenir l'icône d'un changement
 	 */
 	function getChangeIcon(changed: boolean | null) {
 		return changed ? '✓' : '✗';
+	}
+
+	/**
+	 * Fonction pour obtenir la couleur basée sur l'âge d'un événement
+	 * Rouge: 3 jours ou plus, Orange: 2 jours exactement, Vert: moins de 2 jours
+	 */
+	function getAgeBasedColor(date: string | Date | null | undefined): string {
+		if (!date) {
+			return 'bg-gray-500/20 text-gray-500';
+		}
+
+		try {
+			const targetDate = dayjs(date);
+			const now = dayjs();
+
+			if (!targetDate.isValid()) {
+				return 'bg-gray-500/20 text-gray-500';
+			}
+
+			const daysDiff = now.diff(targetDate, 'day');
+
+			if (daysDiff >= 3) {
+				return 'bg-error/20 text-error/90'; // Rouge
+			} else if (daysDiff === 2) {
+				return 'bg-warning/20 text-warning/90'; // Orange
+			} else {
+				return 'bg-success/20 text-success/90'; // Vert
+			}
+		} catch (error) {
+			return 'bg-gray-500/20 text-gray-500';
+		}
+	}
+
+	/**
+	 * Fonction pour formater le temps relatif sans "il y a"
+	 */
+	function formatRelativeTimeWithoutPrefix(date: string | Date | null | undefined): string {
+		if (!date) {
+			return 'Jamais';
+		}
+
+		try {
+			const targetDate = dayjs(date);
+			const now = dayjs();
+
+			if (!targetDate.isValid()) {
+				return 'Date invalide';
+			}
+
+			if (targetDate.isSame(now, 'day')) {
+				return "Aujourd'hui";
+			} else if (targetDate.isSame(now.subtract(1, 'day'), 'day')) {
+				return 'Hier';
+			} else if (targetDate.isSame(now.subtract(2, 'day'), 'day')) {
+				return '2 jours';
+			} else {
+				const daysDiff = now.diff(targetDate, 'day');
+				if (daysDiff < 30) {
+					return `${daysDiff} jours`;
+				} else {
+					// Pour les dates plus anciennes, utiliser le format court
+					return targetDate.format('DD/MM/YY');
+				}
+			}
+		} catch (error) {
+			console.error('Erreur lors du formatage de la date:', error);
+			return 'Date invalide';
+		}
 	}
 
 	// Liste des statuts disponibles pour le dropdown
@@ -147,12 +208,12 @@
 	}
 
 	// État pour contrôler l'ouverture des dropdowns
-	let openDropdownId = $state<number | null>(null);
+	let openDropdownId = $state<number | string | null>(null);
 
 	/**
 	 * Fonction pour basculer l'état d'un dropdown
 	 */
-	function toggleDropdown(accountId: number) {
+	function toggleDropdown(accountId: number | string) {
 		if (openDropdownId === accountId) {
 			openDropdownId = null;
 		} else {
@@ -208,6 +269,7 @@
 			<th class="p-2 first:text-left font-semibold text-center">Compte</th>
 			<th class="p-2 first:text-left font-semibold text-center">Pseudo changé</th>
 			<th class="p-2 first:text-left font-semibold text-center">Warmup</th>
+			<th class="p-2 first:text-left font-semibold text-center">Dernier warmup</th>
 			<th class="p-2 first:text-left font-semibold text-center">Changements</th>
 			<th class="p-2 first:text-left font-semibold text-center">Actions</th>
 		</tr>
@@ -215,7 +277,7 @@
 	<tbody>
 		{#if isLoading}
 			<tr>
-				<td colspan="7" class="p-8 text-center text-neutral-content/60">
+				<td colspan="8" class="p-8 text-center text-neutral-content/60">
 					<div class="flex items-center justify-center gap-2">
 						<Loader2 class="h-6 w-6 animate-spin" />
 						<span>Chargement des comptes...</span>
@@ -224,7 +286,7 @@
 			</tr>
 		{:else if accounts.length === 0}
 			<tr>
-				<td colspan="7" class="p-8 text-center text-neutral-content/60">
+				<td colspan="8" class="p-8 text-center text-neutral-content/60">
 					Aucun compte trouvé pour le filtre.
 				</td>
 			</tr>
@@ -305,13 +367,26 @@
 						{/if}
 					</td>
 					<td class="p-2 h-12">
-						<span
-							class="text-sm {formatRelativeTime(account.last_username_changed) === 'Jamais'
-								? 'text-white/60'
-								: 'text-white'}"
-						>
-							{formatRelativeTime(account.last_username_changed)}
-						</span>
+						<div class="flex justify-center">
+							<div
+								class="px-3 py-1 flex items-center gap-2 w-fit rounded text-xs transition-all duration-200 hover:scale-105 hover:shadow-sm {getAgeBasedColor(
+									account.last_username_changed
+								)}"
+							>
+								<div
+									class="w-2 h-2 rounded-full {account.last_username_changed
+										? dayjs().diff(dayjs(account.last_username_changed), 'day') >= 3
+											? 'bg-error/90'
+											: dayjs().diff(dayjs(account.last_username_changed), 'day') === 2
+												? 'bg-warning/90'
+												: 'bg-success/90'
+										: 'bg-gray-500'}"
+								></div>
+								<span class="font-medium">
+									{formatRelativeTimeWithoutPrefix(account.last_username_changed)}
+								</span>
+							</div>
+						</div>
 					</td>
 					<td class="p-2 h-12 relative">
 						<div class="relative dropdown-container">
@@ -331,10 +406,16 @@
 											? 'bg-warning/90'
 											: 'bg-gray-500'}"
 								></div>
-								{#if account.warmup_phase == 5}
+								{#if account.warmup_phase === 5}
+									<p class="text-success/90 font-semibold">Terminé</p>
+								{:else if account.warmup_phase === null}
+									<p>Aucune</p>
+								{:else if account.warmup_phase === 0}
+									<p>Phase 0</p>
+								{:else if account.warmup_phase >= 5}
 									<p class="text-success/90 font-semibold">Terminé</p>
 								{:else}
-									<p>{account.warmup_phase ? `Phase ${account.warmup_phase}` : 'Aucune'}</p>
+									<p>Phase {account.warmup_phase}</p>
 								{/if}
 								<svg
 									class="w-3 h-3 ml-1 transition-transform {openDropdownId ===
@@ -359,7 +440,8 @@
 								>
 									<li>
 										<button
-											class="flex items-center gap-2 w-full text-left hover:bg-base-200 p-2 rounded {!account.warmup_phase
+											class="flex items-center gap-2 w-full text-left hover:bg-base-200 p-2 rounded {account.warmup_phase ===
+											null
 												? 'bg-base-200'
 												: ''}"
 											onclick={() => {
@@ -372,7 +454,7 @@
 											<span>Aucune</span>
 										</button>
 									</li>
-									{#each [1, 2, 3, 4] as phase}
+									{#each [0, 1, 2, 3, 4] as phase}
 										<li>
 											<button
 												class="flex items-center gap-2 w-full text-left hover:bg-base-200 p-2 rounded {account.warmup_phase ===
@@ -409,6 +491,28 @@
 									</li>
 								</ul>
 							{/if}
+						</div>
+					</td>
+					<td class="p-2 h-12">
+						<div class="flex justify-center">
+							<div
+								class="px-3 py-1 flex items-center gap-2 w-fit rounded text-xs transition-all duration-200 hover:scale-105 hover:shadow-sm {getAgeBasedColor(
+									account.last_warmup
+								)}"
+							>
+								<div
+									class="w-2 h-2 rounded-full {account.last_warmup
+										? dayjs().diff(dayjs(account.last_warmup), 'day') >= 3
+											? 'bg-error/90'
+											: dayjs().diff(dayjs(account.last_warmup), 'day') === 2
+												? 'bg-warning/90'
+												: 'bg-success/90'
+										: 'bg-gray-500'}"
+								></div>
+								<span class="font-medium">
+									{formatRelativeTimeWithoutPrefix(account.last_warmup)}
+								</span>
+							</div>
 						</div>
 					</td>
 					<td class="p-2 h-12">

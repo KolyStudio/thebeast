@@ -37,7 +37,6 @@
 		proxy_renew_port: '',
 		api_sms_activate: '',
 		application: 'fruitz',
-		keywords: '',
 		prenoms: '',
 		instagram_url: '',
 		instagram_main_account: '',
@@ -64,12 +63,7 @@
 		// Si les valeurs existent déjà, ne pas les écraser
 		if (formValues[agentId]) return;
 
-		// Garantir que keywords et prenoms sont des tableaux, même en cas de valeur nulle
-		let keywords: string[] = [];
-		if (agent.keywords !== undefined && agent.keywords !== null) {
-			keywords = Array.isArray(agent.keywords) ? agent.keywords : [];
-		}
-
+		// Garantir que prenoms sont des tableaux, même en cas de valeur nulle
 		let prenoms: string[] = [];
 		if (agent.prenoms !== undefined && agent.prenoms !== null) {
 			prenoms = Array.isArray(agent.prenoms) ? agent.prenoms : [];
@@ -99,7 +93,6 @@
 			proxy_renew_address: agent.proxy_renew_address || '',
 			proxy_renew_port: agent.proxy_renew_port || '',
 			api_sms_activate: agent.api_sms_activate || '',
-			keywords: keywords.join('\n'),
 			prenoms: prenoms.join('\n'),
 			application: agent.application || 'fruitz',
 			instagram_url: agent.instagram_url || '',
@@ -244,18 +237,6 @@
 				}
 
 				// Traiter les tableaux uniquement s'ils ont été modifiés
-				if (values.keywords !== undefined) {
-					const currentKeywords = modelsStore.agents.find((a) => a.id === agentId)?.keywords || [];
-					const newKeywords = values.keywords
-						.split('\n')
-						.map((k: string) => k.trim())
-						.filter((k: string) => k !== '');
-
-					if (JSON.stringify(currentKeywords.sort()) !== JSON.stringify(newKeywords.sort())) {
-						updates.keywords = newKeywords;
-					}
-				}
-
 				if (values.prenoms !== undefined) {
 					const currentPrenoms = modelsStore.agents.find((a) => a.id === agentId)?.prenoms || [];
 					const newPrenoms = values.prenoms
@@ -328,7 +309,6 @@
 		try {
 			const agentData = {
 				name: newAgent.name,
-				status: 'stopped',
 				statut: 'stopped',
 				current: 0,
 				objective: 0,
@@ -343,7 +323,6 @@
 				application: newAgent.application,
 				prenoms: [],
 				pseudos: [],
-				keywords: [],
 				instagram_url: '',
 				instagram_main_account: '',
 				instagram_prenoms: [],
@@ -365,7 +344,6 @@
 				proxy_renew_port: '',
 				api_sms_activate: '',
 				application: 'fruitz',
-				keywords: '',
 				prenoms: '',
 				instagram_url: '',
 				instagram_main_account: '',
@@ -437,7 +415,7 @@
 <Dialog>
 	<DialogTrigger>
 		<div
-			class=" cursor-pointer hidden md:flex bg-muted mr-6 hover:bg-accent text-muted-foreground hover:text-accent-foreground font-medium text-sm rounded-xl space-x-2 items-center justify-center w-10 h-10 transition-colors"
+			class=" cursor-pointer hidden md:flex bg-base-200 mr-6 hover:bg-accent text-muted-foreground hover:text-accent-foreground font-medium text-sm rounded-xl space-x-2 items-center justify-center w-10 h-10 transition-colors"
 		>
 			<Settings class="w-4 h-4" />
 		</div>
@@ -445,8 +423,8 @@
 	<DialogContent class="sm:max-w-[900px] p-0 gap-0">
 		<div class="flex h-[650px]">
 			<!-- Sidebar -->
-			<div class="w-64 bg-muted p-4 rounded-l-lg">
-				<h2 class="text-xl font-semibold px-2 mb-4">Settings</h2>
+			<div class="w-64 bg-base-100 p-4 rounded-l-lg">
+				<h2 class="text-xl font-semibold px-2 mb-4">Paramètres</h2>
 				<nav class="space-y-1">
 					<Button
 						variant={selectedTab === 'general' ? 'menu' : 'ghost'}
@@ -503,7 +481,7 @@
 			</div>
 
 			<!-- Content -->
-			<div class="flex-1 p-6 relative overflow-hidden">
+			<div class="flex-1 p-6 relative overflow-hidden bg-base-100">
 				{#if isLoading}
 					<div class="absolute inset-0 flex items-center justify-center bg-red-400/80 z-10">
 						<div class="h-8 w-8 animate-spin text-muted-foreground">⏳</div>

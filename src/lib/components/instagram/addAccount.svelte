@@ -17,9 +17,10 @@
 	let { open = $bindable(), onClose }: Props = $props();
 
 	let accountsText = $state('');
+	let activeTab = $state<'email' | '2fa'>('email');
 
 	/**
-	 * Parser le texte des comptes au format pseudo:pass:email:email_pass:challenge_pass
+	 * Parser le texte des comptes selon le format sélectionné
 	 */
 	function parseAccounts(text: string): InstagramAccountInput[] {
 		const lines = text
@@ -30,15 +31,29 @@
 
 		for (const line of lines) {
 			const parts = line.trim().split(':');
-			if (parts.length >= 5) {
-				accounts.push({
-					username: parts[0],
-					password: parts[1],
-					challenge_mail: parts[2],
-					email_password: parts[3],
-					challenge_password: parts[4],
-					statut: 'nouveau'
-				});
+
+			if (activeTab === 'email') {
+				// Format Email: pseudo:pass:email:email_pass:challenge_pass
+				if (parts.length >= 5) {
+					accounts.push({
+						username: parts[0],
+						password: parts[1],
+						challenge_mail: parts[2],
+						email_password: parts[3],
+						challenge_password: parts[4],
+						statut: 'nouveau'
+					});
+				}
+			} else if (activeTab === '2fa') {
+				// Format 2FA: pseudo:password:code_2fa
+				if (parts.length >= 3) {
+					accounts.push({
+						username: parts[0],
+						password: parts[1],
+						totp_seed: parts[2],
+						statut: 'nouveau'
+					});
+				}
 			}
 		}
 
@@ -53,7 +68,11 @@
 
 		const accounts = parseAccounts(accountsText);
 		if (accounts.length === 0) {
-			alert('Format invalide. Utilisez le format: pseudo:pass:email:email_pass:challenge_pass');
+			const formatMessage =
+				activeTab === 'email'
+					? 'Format invalide. Utilisez le format: pseudo:pass:email:email_pass:challenge_pass'
+					: 'Format invalide. Utilisez le format: pseudo:password:code_2fa';
+			alert(formatMessage);
 			return;
 		}
 
@@ -90,21 +109,63 @@
 			</div>
 		</Dialog.Header>
 
-		<div class="flex w-full max-w-sm flex-col gap-1.5">
-			<Label for="accounts">Comptes</Label>
-			<Textarea
-				id="accounts"
-				bind:value={accountsText}
-				placeholder="pseudo:pass:email:email_pass:challenge_pass
+		<!-- Système d'onglets -->
+		<div class="h-10 tabs tabs-box w-fit mb-4">
+			<input
+				type="radio"
+				name="auth_tabs"
+				class="h-8 tab"
+				aria-label="Email"
+				checked={activeTab === 'email'}
+				onchange={() => {
+					activeTab = 'email';
+					accountsText = '';
+				}}
+			/>
+			<input
+				type="radio"
+				name="auth_tabs"
+				class="h-8 tab"
+				aria-label="2FA"
+				checked={activeTab === '2fa'}
+				onchange={() => {
+					activeTab = '2fa';
+					accountsText = '';
+				}}
+			/>
+		</div>
+
+		<!-- Contenu de l'onglet Email -->
+		{#if activeTab === 'email'}
+			<div class="flex w-full max-w-sm flex-col gap-1.5">
+				<Label for="accounts">Comptes (Méthode Email)</Label>
+				<Textarea
+					id="accounts"
+					bind:value={accountsText}
+					placeholder="pseudo:pass:email:email_pass:challenge_pass
 pseudo:pass:email:email_pass:challenge_pass
 pseudo:pass:email:email_pass:challenge_pass"
-				class="min-h-[200px]"
-				disabled={instagramAccountsStore.isLoading.create}
-			/>
-			<p class="text-xs text-gray-500 mt-1">
-				Format: pseudo:motdepasse:email:motdepasseemail:motdepassechallenge (un par ligne)
-			</p>
-		</div>
+					class="min-h-[200px]"
+					disabled={instagramAccountsStore.isLoading.create}
+				/>
+			</div>
+		{/if}
+
+		<!-- Contenu de l'onglet 2FA -->
+		{#if activeTab === '2fa'}
+			<div class="flex w-full max-w-sm flex-col gap-1.5">
+				<Label for="accounts">Comptes (Méthode 2FA)</Label>
+				<Textarea
+					id="accounts"
+					bind:value={accountsText}
+					placeholder="pseudo:password:code_2fa
+pseudo:password:code_2fa
+pseudo:password:code_2fa"
+					class="min-h-[200px]"
+					disabled={instagramAccountsStore.isLoading.create}
+				/>
+			</div>
+		{/if}
 
 		{#if instagramAccountsStore.errors.create}
 			<div class="text-red-500 text-sm p-2 bg-red-50 rounded">

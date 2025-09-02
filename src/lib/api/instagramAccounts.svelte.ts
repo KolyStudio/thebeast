@@ -35,6 +35,9 @@ export interface InstagramAccount {
   last_username_changed: string | null;
   error_message: string | null;
   warmup_phase: number | null;
+  totp_seed: string | null;
+  last_warmup: string | null;
+  warmup_stats: any | null;
 }
 
 // Interface pour créer/modifier un compte (sans id)
@@ -67,6 +70,9 @@ export interface InstagramAccountInput {
   last_username_changed?: string | null;
   error_message?: string | null;
   warmup_phase?: number | null;
+  totp_seed?: string | null;
+  last_warmup?: string | null;
+  warmup_stats?: any | null;
 }
 
 // Types pour les réponses et les erreurs

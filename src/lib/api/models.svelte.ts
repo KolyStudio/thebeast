@@ -4,7 +4,6 @@ import { toast } from "svelte-sonner";
 export interface Agent {
   id: string;
   name: string;
-  status: string;
   statut: string;
   current: number;
   objective: number;
@@ -18,7 +17,6 @@ export interface Agent {
   application: string;
   prenoms: string[];
   pseudos: string[];
-  keywords: string[];
   created: string;
   updated_at: string;
   user_id?: string;
@@ -104,37 +102,27 @@ class ModelsStore {
       if (error) throw error;
 
       console.log('Données brutes de Supabase:', data);
-      
+
       // Log fields specifically for debugging
       if (data && data.length > 0) {
-        console.log('Premier agent - keywords:', data[0].keywords, 'Type:', typeof data[0].keywords);
         console.log('Premier agent - modele_prenoms:', data[0].modele_prenoms, 'Type:', typeof data[0].modele_prenoms);
       }
 
       // Transformer les données pour les adapter au modèle Agent
       this.agents = data.map((item: any) => {
-        // Traitement spécifique pour les keywords
-        let itemKeywords = item.modele_pseudos;
-        console.log('Keywords bruts de la base de données:', itemKeywords, 'type:', typeof itemKeywords);
-        
-        // Si keywords est null ou undefined, utiliser un tableau vide
-        const keywords = this.parseStringArray(itemKeywords);
-        console.log('Keywords après parsing:', keywords);
-        
+
         // Log pour les prénoms aussi
         let itemPrenoms = item.modele_prenoms;
         console.log('Prénoms bruts de la base de données:', itemPrenoms, 'type:', typeof itemPrenoms);
-        
+
         return {
           id: item.id,
           name: item.name,
-          status: item.status,
           statut: item.statut,
           current: item.current,
           objective: item.objectif,
           prenoms: this.parseStringArray(itemPrenoms),
           pseudos: this.parseStringArray(item.modele_pseudos),
-          keywords: keywords,
           proxy_ip: item.proxy_ip,
           proxy_port: item.proxy_port,
           proxy_username: item.proxy_username,
@@ -157,7 +145,6 @@ class ModelsStore {
       console.log('Agents chargés:', this.agents);
       // Log du premier agent pour vérifier
       if (this.agents.length > 0) {
-        console.log('Premier agent après transformation - keywords:', this.agents[0].keywords);
         console.log('Premier agent après transformation - prenoms:', this.agents[0].prenoms);
       }
     } catch (err) {
@@ -193,13 +180,11 @@ class ModelsStore {
         currentAgent = {
           id: data.id,
           name: data.name,
-          status: data.status,
           statut: data.statut,
           current: data.current,
           objective: data.objectif,
           prenoms: this.parseStringArray(data.modele_prenoms),
           pseudos: this.parseStringArray(data.modele_pseudos),
-          keywords: this.parseStringArray(data.keywords),
           proxy_ip: data.proxy_ip,
           proxy_port: data.proxy_port,
           proxy_username: data.proxy_username,
@@ -226,11 +211,7 @@ class ModelsStore {
       if (updates.name !== undefined && updates.name !== currentAgent.name) {
         supabaseData.name = updates.name;
       }
-      
-      if (updates.status !== undefined && updates.status !== currentAgent.status) {
-        supabaseData.status = updates.status;
-      }
-      
+
       if (updates.statut !== undefined && updates.statut !== currentAgent.statut) {
         supabaseData.statut = updates.statut;
       }
@@ -288,18 +269,9 @@ class ModelsStore {
       if (updates.pseudos !== undefined) {
         const currentPseudos = currentAgent.pseudos || [];
         const newPseudos = Array.isArray(updates.pseudos) ? updates.pseudos : this.parseStringArray(updates.pseudos);
-        
+
         if (JSON.stringify(currentPseudos.sort()) !== JSON.stringify(newPseudos.sort())) {
           supabaseData.modele_pseudos = `{${newPseudos.join(',')}}`;
-        }
-      }
-      
-      if (updates.keywords !== undefined) {
-        const currentKeywords = currentAgent.keywords || [];
-        const newKeywords = Array.isArray(updates.keywords) ? updates.keywords : this.parseStringArray(updates.keywords);
-        
-        if (JSON.stringify(currentKeywords.sort()) !== JSON.stringify(newKeywords.sort())) {
-          supabaseData.modele_pseudos = `{${newKeywords.join(',')}}`;
         }
       }
 
@@ -392,7 +364,6 @@ class ModelsStore {
     try {
       const supabaseData = {
         name: agent.name,
-        status: agent.status || 'stopped',
         statut: agent.statut || 'stopped',
         current: agent.current || 0,
         objectif: agent.objective || 0,
@@ -406,7 +377,6 @@ class ModelsStore {
         application: agent.application || 'fruitz',
         modele_prenoms: Array.isArray(agent.prenoms) ? agent.prenoms : [],
         modele_pseudos: Array.isArray(agent.pseudos) ? agent.pseudos : [],
-        keywords: Array.isArray(agent.keywords) ? agent.keywords : [],
         instagram_url: agent.instagram_url || '',
         instagram_main_account: agent.instagram_main_account || '',
         instagram_prenoms: Array.isArray(agent.instagram_prenoms) ? agent.instagram_prenoms : [],
@@ -458,13 +428,11 @@ class ModelsStore {
       const agent: Agent = {
         id: data.id,
         name: data.name,
-        status: data.status,
         statut: data.statut,
         current: data.current,
         objective: data.objectif,
         prenoms: this.parseStringArray(data.modele_prenoms),
         pseudos: this.parseStringArray(data.modele_pseudos),
-        keywords: this.parseStringArray(data.keywords),
         proxy_ip: data.proxy_ip,
         proxy_port: data.proxy_port,
         proxy_username: data.proxy_username,
@@ -599,9 +567,18 @@ class ModelsStore {
         // 4. Lancer le serveur pour cet agent
         try {
           // Déterminer le bon port en fonction de l'application
-          const serverPort = agent.application === 'happn' ? '3002' : '3001';
+          let serverPort = '3001'; // Port par défaut pour fruitz
+          let endpoint = 'createFruitz'; // Endpoint par défaut pour fruitz
+
+          if (agent.application === 'happn') {
+            serverPort = '3002';
+            endpoint = 'createHappn';
+          } else if (agent.application === 'feels') {
+            serverPort = '3001';
+            endpoint = 'createFeels';
+          }
+
           const serverUrl = `http://localhost:${serverPort}`;
-          const endpoint = agent.application === 'happn' ? 'createHappn' : 'createFruitz';
           
           console.log(`Démarrage de l'agent ${agent.name} (${agent.application}) sur le port ${serverPort}`);
           
@@ -659,7 +636,14 @@ class ModelsStore {
         try {
           // 1. Appeler l'endpoint pour arrêter le processus côté serveur
           // Déterminer le bon port en fonction de l'application
-          const serverPort = agent.application === 'happn' ? '3002' : '3001';
+          let serverPort = '3001'; // Port par défaut pour fruitz
+
+          if (agent.application === 'happn') {
+            serverPort = '3002';
+          } else if (agent.application === 'feels') {
+            serverPort = '3001';
+          }
+
           const serverUrl = `http://localhost:${serverPort}`;
           
           console.log(`Arrêt de l'agent ${agent.name} (${agent.application}) sur le port ${serverPort}`);

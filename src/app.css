@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 @import "tw-animate-css";
+@tailwind utilities;
+
 @plugin "daisyui";
 @plugin "daisyui/theme" {
   name: "dim";
@@ -9,7 +11,7 @@
   color-scheme: "dark";
   --color-base-100: oklch(0.2393 0 0);
   --color-base-200: oklch(0.2804 0 0);
-  --color-base-300: oklch(0.3006 0.0108 293.39);
+  --color-base-300: oklch(0.2768 0 0);
   --color-base-content: oklch(0.9946 0.0026 286.35);
   --color-primary: oklch(86.133% 0.141 139.549);
   --color-primary-content: oklch(17.226% 0.028 139.549);
@@ -248,3 +250,18 @@ body {
       border-radius: 10% !important;
    }
 
+
+
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+     /* Hide scrollbar for IE, Edge and Firefox */
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+    }
+
+button {
+   cursor: pointer;
+}

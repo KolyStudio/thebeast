@@ -14,7 +14,7 @@
 <div class="space-y-6">
 	<div class="bg-base-200 rounded-xl p-4">
 		<div class="space-y-6">
-			<div class="flex items-center space-x-2 text-red-500">
+			<div class="flex items-center space-x-2 text-error">
 				<AlertTriangle class="w-5 h-5" />
 				<h4 class="text-base font-medium">Supprimer un agent</h4>
 			</div>
@@ -34,7 +34,7 @@
 					>
 						{#if agentToDelete && modelsStore.agents.find((a: any) => a.id === agentToDelete)}
 							<div class="flex items-center gap-2">
-								<AlertTriangle class="w-4 h-4 text-red-500" />
+								<AlertTriangle class="w-4 h-4 text-error" />
 								{#if modelsStore.agents.find((a: any) => a.id === agentToDelete)?.application}
 									<img
 										src="/{modelsStore.agents.find((a: any) => a.id === agentToDelete)
@@ -68,7 +68,7 @@
 			<div class="flex justify-end mt-6">
 				<Button
 					onclick={onDelete}
-					class="bg-red-500 hover:bg-red-600 text-white"
+					class="bg-error/30 hover:bg-error/30 text-error/90"
 					disabled={!agentToDelete}
 				>
 					<AlertTriangle class="w-4 h-4 mr-2" />

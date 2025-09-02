@@ -91,7 +91,7 @@
 	>
 		<!-- Agents en marche -->
 		<div class="flex items-center gap-2.5">
-			<div class="bg-gradient-to-br from-green-400 to-green-500 p-1 rounded-full shadow-sm"></div>
+			<div class="bg-success p-1 rounded-full shadow-sm"></div>
 			<div class="text-sm font-medium">
 				{modelsStore.agents.filter((a) => a.statut === 'started').length} agents en service
 			</div>
@@ -100,7 +100,7 @@
 
 	<!-- Bouton d'arrêt général -->
 	<button
-		class="backdrop-blur-sm bg-red-500/40 hover:bg-red-500/40 text-red-300 rounded-xl px-3.5 h-[38px] flex items-center justify-center transition-all duration-200 cursor-pointer"
+		class="backdrop-blur-sm bg-error/30 hover:bg-error/40 text-error/90 rounded-xl px-3.5 h-[38px] flex items-center justify-center transition-all duration-200 cursor-pointer"
 		onclick={stopAllRunningAgents}
 	>
 		<StopCircle class="w-4 h-4" />
@@ -108,7 +108,7 @@
 
 	<!-- Bouton de démarrage général -->
 	<button
-		class="backdrop-blur-sm bg-green-500/40 hover:bg-green-500/40 text-green-300 rounded-xl px-3.5 h-[38px] flex items-center justify-center transition-all duration-200 cursor-pointer"
+		class="backdrop-blur-sm bg-success/30 hover:bg-success/40 text-success/90 rounded-xl px-3.5 h-[38px] flex items-center justify-center transition-all duration-200 cursor-pointer"
 		onclick={startAllStoppedAgents}
 	>
 		<PlayIcon class="w-4 h-4" />
@@ -119,7 +119,7 @@
 	>
 		<!-- Agents en marche -->
 		<div class="flex items-center gap-2.5">
-			<div class="bg-gradient-to-br from-yellow-400 to-yellow-500 p-1 rounded-full shadow-sm"></div>
+			<div class="bg-warning p-1 rounded-full shadow-sm"></div>
 			<div class="text-sm font-medium">
 				{modelsStore.agents.filter((a) => a.status === 'running').length} warnings
 			</div>

@@ -154,7 +154,7 @@
 
 		<Button
 			variant="ghost"
-			class={`text-xs px-3 py-1 h-auto rounded-md mr-2 ${showAll ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+			class={`text-xs px-3 py-1 h-auto rounded-md mr-2 ${showAll ? 'bg-base-200 text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
 			onclick={() => toggleFilter('all')}
 		>
 			Tous les logs <span class="ml-1 opacity-75">{logs.length}</span>
@@ -162,7 +162,7 @@
 
 		<Button
 			variant="ghost"
-			class={`text-xs px-3 py-1 h-auto rounded-md mr-2 ${showError ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+			class={`text-xs px-3 py-1 h-auto rounded-md mr-2 ${showError ? 'bg-base-200 text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
 			onclick={() => toggleFilter('error')}
 		>
 			Erreurs <span class="ml-1 opacity-75">{errorCount}</span>
@@ -170,7 +170,7 @@
 
 		<Button
 			variant="ghost"
-			class={`text-xs px-3 py-1 h-auto rounded-md ${showWarning ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+			class={`text-xs px-3 py-1 h-auto rounded-md ${showWarning ? 'bg-base-200 text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
 			onclick={() => toggleFilter('warning')}
 		>
 			Warnings <span class="ml-1 opacity-75">{warningCount}</span>

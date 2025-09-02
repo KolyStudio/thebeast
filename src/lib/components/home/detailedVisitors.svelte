@@ -297,7 +297,7 @@
 			France: 'FR',
 			'United States': 'US',
 			Germany: 'DE',
-			'United Kingdom': 'GB',
+			'United Kingdom': 'GBR',
 			Spain: 'ES',
 			Italy: 'IT',
 			Canada: 'CA',
@@ -410,7 +410,7 @@
 		}
 
 		// Default fallback
-		return '/flags/s/X.svg';
+		return '/flags/s/USA.svg';
 	}
 
 	// Function to format page path

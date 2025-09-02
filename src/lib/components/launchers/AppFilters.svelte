@@ -12,8 +12,8 @@
 		class={cn(
 			'px-4 py-1.5 text-sm font-medium rounded-xl transition-all flex items-center gap-2 cursor-pointer',
 			appFilters.fruitz
-				? 'bg-white text-primary-foreground shadow-sm'
-				: 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
+				? 'bg-base-100  text-white shadow-sm'
+				: 'bg-transparent text-muted-foreground hover:bg-base-200 hover:text-foreground'
 		)}
 		onclick={() => onToggleApp('fruitz', !appFilters.fruitz)}
 	>
@@ -24,12 +24,24 @@
 		class={cn(
 			'px-4 py-1.5 text-sm font-medium rounded-xl transition-all flex items-center gap-2 cursor-pointer',
 			appFilters.happn
-				? 'bg-white text-primary-foreground shadow-sm'
-				: 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
+				? 'bg-base-100 text-white shadow-sm'
+				: 'bg-transparent text-muted-foreground hover:bg-base-200 hover:text-foreground'
 		)}
 		onclick={() => onToggleApp('happn', !appFilters.happn)}
 	>
 		<img src="/happn.png" alt="Happn" class="w-4 h-4" />
 		Happn
+	</button>
+	<button
+		class={cn(
+			'px-4 py-1.5 text-sm font-medium rounded-xl transition-all flex items-center gap-2 cursor-pointer',
+			appFilters.feels
+				? 'bg-base-100 text-white shadow-sm'
+				: 'bg-transparent text-muted-foreground hover:bg-base-200 hover:text-foreground'
+		)}
+		onclick={() => onToggleApp('feels', !appFilters.feels)}
+	>
+		<img src="/feels.png" alt="Feels" class="w-4 h-4" />
+		Feels
 	</button>
 </div>

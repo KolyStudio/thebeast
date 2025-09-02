@@ -11,6 +11,7 @@
 	dayjs.extend(timezone);
 	dayjs.extend(utc);
 	dayjs.locale('fr');
+	import DatePickerRange from '$lib/components/ui/date-picker-range.svelte';
 
 	let activePreset = $state('today');
 	let startDate = $state('');
@@ -195,9 +196,9 @@
 
 <div class="overflow-x-auto my-3 text-sm bg-base-100 rounded-lg w-full">
 	<!-- Sélecteur de dates -->
-	<div class="flex items-center gap-2 cursor-pointer">
+	<div class="flex items-center gap-2">
 		<select
-			class="select select-neutral w-[200px] bg-base-300 m-2 outline-0 cursor-pointer hover:bg-base-200"
+			class="select select-neutral w-[200px] bg-base-200 m-2 outline-0 cursor-pointer hover:bg-base-300"
 			bind:value={activePreset}
 			onchange={() => handlePresetClick(activePreset)}
 		>
@@ -206,22 +207,18 @@
 			{/each}
 		</select>
 
-		{#if activePreset != 'custom'}
-			<div class="flex gap-2">
-				<input
-					type="date"
-					class="input input-bordered bg-base-300 hover:bg-base-200"
-					bind:value={startDate}
-					onchange={() => updateData(dayjs(startDate), dayjs(endDate))}
-				/>
-				<input
-					type="date"
-					class="input input-bordered bg-base-300 hover:bg-base-200"
-					bind:value={endDate}
-					onchange={() => updateData(dayjs(startDate), dayjs(endDate))}
-				/>
-			</div>
-		{/if}
+		<DatePickerRange
+			class="bg-base-200 hover:bg-base-300"
+			onValueChange={(range: { start: any; end: any }) => {
+				if (range.start && range.end) {
+					// Passer en mode personnalisé quand on utilise le sélecteur de dates
+					activePreset = 'custom';
+					startDate = range.start.toString();
+					endDate = range.end.toString();
+					updateData(dayjs(startDate), dayjs(endDate));
+				}
+			}}
+		/>
 	</div>
 
 	<table class="w-full border-collapse overflow-hidden font-medium text-center">
@@ -233,7 +230,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each sortedResults as row, index}
+			{#each sortedResults as row}
 				<tr class="bg-base-100 text-neutral-content/80">
 					<td class="p-2 h-12 first:rounded-bl-lg last:rounded-br-lg first:text-left">{row[0]}</td>
 					<td class="p-2 h-12">{formatNumber(row[2])}</td>
